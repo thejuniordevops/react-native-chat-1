@@ -1,8 +1,6 @@
 'use strict';
 var React = require('react-native');
-var {
-  StyleSheet
-  } = React;
+var {StyleSheet} = React;
 var Config = require('./Config');
 
 
@@ -30,10 +28,10 @@ const styles = StyleSheet.create({
     width: 200,
     borderRadius: 5,
     backgroundColor: Config.styles.colorLightGrey,
-    paddingTop:15,
-    paddingBottom:15,
-    paddingLeft:20,
-    paddingRight:20
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingLeft: 20,
+    paddingRight: 20
   },
   buttonSmall: {
     fontSize: 12,
@@ -51,11 +49,14 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     borderColor: 'gray',
     borderWidth: 1,
-    marginTop:5,
+    marginTop: 5,
     marginBottom: 5,
     marginLeft: 10,
     marginRight: 10,
     backgroundColor: Config.styles.colorWhite
+  },
+  error: {
+    color: Config.styles.colorWarning
   }
 });
 module.exports = styles;

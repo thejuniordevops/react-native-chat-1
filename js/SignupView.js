@@ -1,30 +1,51 @@
 'use strict';
 
 var React = require('react-native');
-var {
-  AppRegistry,
-  Component,
-  StyleSheet,
-  TouchableHighlight,
-  Text,
-  View
-  } = React;
+var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, TextInput, View} = React;
 var DataService = require('./DataService');
-//var Config = require('./Config');
+var Config = require('./Config');
+var Message = require("./Message");
 
 class SignupView extends Component {
 
-  componentDidMount () {
+  constructor(props) {
+    super(props);
+    this.state = {
+      username: "",
+      password: "",
+      errMsg: ""
+    };
+  }
+
+  componentDidMount() {
     DataService.connect();
   }
 
-  register () {
-    console.log('register');
-    DataService.register();
+  register() {
+    var that = this;
+    DataService.register({
+      username: this.state.username,
+      password: this.state.password
+    }, function (data) {
+      console.log("register received", data);
+      if (data && !data.err) {
+        //data.response includes token, expires, user
+        that.goToStepTwo();
+      } else {
+        that.showError(data.response.msg);
+      }
+    });
   }
 
+  goToStepTwo() {
 
-  login () {
+  }
+
+  showError(errMsg) {
+    this.setState({errMsg: errMsg});
+  }
+
+  login() {
     console.log('login');
     this.props.navigator.push({
       name: 'Login'
@@ -36,42 +57,50 @@ class SignupView extends Component {
     return (
       <View style={[styleCommon.background, styles.container]}>
         <TextInput
-          style={styleCommon.input}
-          onChangeText={(username) => this.setState({username})}
-          placeholder={"username"}
-          value={this.state.username}
+        style={styleCommon.input}
+        onChangeText={(username) => this.setState({
+          username
+        })}
+        placeholder={Message.text('username')}
+        value={this.state.username}
         />
         <TextInput
-          secureTextEntry={true}
-          style={styleCommon.input}
-          onChangeText={(password) => this.setState({password})}
-          placeholder={"password"}
-          value={this.state.password}
+        secureTextEntry={true}
+        style={styleCommon.input}
+        onChangeText={(password) => this.setState({
+          password
+        })}
+        placeholder={Message.text('password')}
+        value={this.state.password}
         />
+        <Text style={styleCommon.error}>
+          {this.state.errMsg}
+        </Text>
+        <TouchableElement
+        onPress={this.register.bind(this)}
+        activeOpacity={0.8}
+        underlayColor={Config.styles.colorWhite}
+        style={[styleCommon.touchableButton, styles.register]}>
+        <Text style={styleCommon.buttonMedium}>
+          {Message.text('sign_up')}
+        </Text>
+        </TouchableElement>
 
         <TouchableElement
         onPress={this.login.bind(this)}
         activeOpacity={0.8}
-        underlayColor={Config.styles.colorWhite}
-        style={[styleCommon.touchableButton, styles.login]}>
-        <Text style={styleCommon.buttonMedium}>
-        Login
-        </Text>
-        </TouchableElement>
-
-        <TouchableElement
-        onPress={this.register.bind(this)}
-        activeOpacity={0.8}
         underlayColor={Config.styles.colorGreen}
-        style={[styleCommon.touchableLink, styles.register]}>
+        style={[styleCommon.touchableLink, styles.login]}>
         <Text style={styleCommon.textLink}>
-        Register
+          {Message.text('login')}
         </Text>
         </TouchableElement>
       </View>
-    );
+      );
   }
 }
+
+var styleCommon = require("./StylesCommon");
 
 const styles = StyleSheet.create({
   container: {
@@ -82,26 +111,11 @@ const styles = StyleSheet.create({
     paddingTop: 200,
     paddingBottom: 200,
   },
-  touchable: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 60,
-    width: 200,
-    borderRadius:10
+  login: {
+    marginTop: 50,
   },
-  button: {
-    fontSize: 16,
-    textAlign: 'center',
-    width: 200,
-    alignItems: 'center',
-    backgroundColor: '#eeeeee',
-    paddingTop:10,
-    paddingBottom:20,
-    paddingLeft:20,
-    paddingRight:20,
-
+  register: {
+    marginTop: 20,
   }
 });
 

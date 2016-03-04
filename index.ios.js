@@ -4,31 +4,25 @@
  */
 'use strict';
 var React = require('react-native');
-var {
-  AppRegistry,
-  Component,
-  StyleSheet,
-  Navigator,
-  Text,
-  View
-  } = React;
+var {AppRegistry, Component, StyleSheet, Navigator, Text, View} = React;
 var LoginView = require('./js/LoginView');
 var SignUpView = require('./js/SignupView');
 
 (route, routeStack) => Navigator.SceneConfigs.FloatFromRight
 
 class reactNativeChat extends Component {
-  componentDidMount () {
-
-  }
+  componentDidMount() {}
   render() {
     return (
       <Navigator
-        style={styles.container}
-        initialRoute = {{name: 'Signup', index: 0}}
-        renderScene = {this.navigatorRenderScene}
+      style={styles.container}
+      initialRoute = {{
+        name: 'Signup',
+        index: 0
+      }}
+      renderScene = {this.navigatorRenderScene}
       />
-    );
+      );
   }
   navigatorRenderScene(route, navigator) {
     switch (route.name) {

@@ -1,35 +1,23 @@
 'use strict';
 
 var React = require('react-native');
-var {
-  AppRegistry,
-  Component,
-  StyleSheet,
-  TextInput,
-  ActivityIndicatorIOS,
-  TouchableHighlight,
-  Text,
-  View
-  } = React;
+var {AppRegistry, Component, StyleSheet, TextInput, ActivityIndicatorIOS, TouchableHighlight, Text, View} = React;
 var DataService = require('./DataService');
 var Config = require('./Config');
-
+var Message = require('./Message');
 
 class LoginView extends Component {
   constructor(props) {
-    super(props); 
+    super(props);
     this.state = {
-      username: "",
-      password: ""
+      username: '',
+      password: '',
+      errMsg: ''
     };
-    this.register.bind(this);
-    this.login.bind(this);
   }
-  componentDidMount () {
+  componentDidMount() {}
 
-  }
-
-  register () {
+  register() {
     console.log('register');
     //DataService.register();
     this.props.navigator.push({
@@ -37,9 +25,25 @@ class LoginView extends Component {
     });
   }
 
-  login () {
+  login() {
     console.log('login');
+    var that = this;
+    DataService.login({
+      username: this.state.username,
+      password: this.state.password
+    }, function (data) {
+      console.log('login received', data);
+      if (data && !data.err) {
+        //data.response includes token, expires, user
+        console.log("login success");
+      } else {
+        that.showError(data.response.msg);
+      }
+    });
+  }
 
+  showError(errMsg) {
+    this.setState({errMsg: errMsg});
   }
 
   render() {
@@ -47,44 +51,50 @@ class LoginView extends Component {
     return (
       <View style={[styleCommon.background, styles.container]}>
         <TextInput
-          style={styleCommon.input}
-          onChangeText={(username) => this.setState({username})}
-          placeholder={"username"}
-          value={this.state.username}
+        style={styleCommon.input}
+        onChangeText={(username) => this.setState({
+          username
+        })}
+        placeholder={Message.text('username')}
+        value={this.state.username}
         />
-        <TextInput 
-          secureTextEntry={true} 
-          style={styleCommon.input}
-          onChangeText={(password) => this.setState({password})}
-          placeholder={"password"}
-          value={this.state.password} 
+        <TextInput
+        secureTextEntry={true}
+        style={styleCommon.input}
+        onChangeText={(password) => this.setState({
+          password
+        })}
+        placeholder={Message.text('password')}
+        value={this.state.password}
         />
-
+        <Text style={styleCommon.error}>
+          {this.state.errMsg}
+        </Text>
         <TouchableElement
-          onPress={this.login.bind(this)}
-          activeOpacity={0.8}
-          underlayColor={Config.styles.colorWhite}
-          style={[styleCommon.touchableButton, styles.login]}>
+        onPress={this.login.bind(this)}
+        activeOpacity={0.8}
+        underlayColor={Config.styles.colorWhite}
+        style={[styleCommon.touchableButton, styles.login]}>
             <Text style={styleCommon.buttonMedium}>
-              Login
+              {Message.text('login')}
             </Text>
         </TouchableElement>
 
         <TouchableElement
-          onPress={this.register.bind(this)}
-          activeOpacity={0.8}
-          underlayColor={Config.styles.colorGreen}
-          style={[styleCommon.touchableLink, styles.register]}>
+        onPress={this.register.bind(this)}
+        activeOpacity={0.8}
+        underlayColor={Config.styles.colorGreen}
+        style={[styleCommon.touchableLink, styles.register]}>
             <Text style={styleCommon.textLink}>
-              Register
+              {Message.text('sign_up')}
             </Text>
         </TouchableElement>
       </View>
-    );
+      );
   }
 }
 
-var styleCommon = require("./StylesCommon");
+var styleCommon = require('./StylesCommon');
 
 const styles = StyleSheet.create({
   container: {

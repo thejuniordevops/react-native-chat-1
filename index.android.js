@@ -3,13 +3,7 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
-import React, {
-  AppRegistry,
-  Component,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import React, { AppRegistry, Component, StyleSheet, Text, View } from 'react-native';
 
 class reactNativeChat extends Component {
   render() {
@@ -25,7 +19,7 @@ class reactNativeChat extends Component {
           Shake or press menu button for dev menu
         </Text>
       </View>
-    );
+      );
   }
 }
 

@@ -1,37 +1,30 @@
 'use strict';
 
 var React = require('react-native');
-var {
-  AppRegistry,
-  Component,
-  StyleSheet,
-  TouchableHighlight,
-  Text,
-  View
-  } = React;
+var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, View} = React;
 var DataService = require('./DataService');
 //var Config = require('./Config');
 
 class SignupView extends Component {
 
   constructor(props) {
-    super(props); 
+    super(props);
     this.state = {
       displayName: "",
       email: ""
     };
   }
-  componentDidMount () {
+  componentDidMount() {
     DataService.connect();
   }
 
-  register () {
+  register() {
     console.log('register');
     DataService.register();
   }
 
 
-  login () {
+  login() {
     console.log('login');
   }
 
@@ -41,18 +34,22 @@ class SignupView extends Component {
       <View style={styles.container}>
         // name
         <TextInput
-          style={styles.input}
-          placeholder={"name"}
-          placeholderTextColor={"#cccccc"}
-          onChangeText={(name) => this.setState({name})}
-          value={this.state.name}
-        />
+      style={styles.input}
+      placeholder={"name"}
+      placeholderTextColor={"#cccccc"}
+      onChangeText={(name) => this.setState({
+        name
+      })}
+      value={this.state.name}
+      />
         // email
         <TextInput
-          style={styles.input}
-          onChangeText={(email) => this.setState({email})}
-          value={this.state.email}
-        />
+      style={styles.input}
+      onChangeText={(email) => this.setState({
+        email
+      })}
+      value={this.state.email}
+      />
         <TouchableElement onPress={this.login} style={styles.touchable}>
           <Text style={styles.button}>
           Start Chatting
@@ -60,7 +57,7 @@ class SignupView extends Component {
         </TouchableElement>
 
       </View>
-    );
+      );
   }
 }
 
@@ -80,7 +77,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 60,
     width: 200,
-    borderRadius:10
+    borderRadius: 10
   },
   button: {
     fontSize: 16,
@@ -88,10 +85,10 @@ const styles = StyleSheet.create({
     width: 200,
     alignItems: 'center',
     backgroundColor: '#eeeeee',
-    paddingTop:10,
-    paddingBottom:20,
-    paddingLeft:20,
-    paddingRight:20,
+    paddingTop: 10,
+    paddingBottom: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
 
   }
 });
