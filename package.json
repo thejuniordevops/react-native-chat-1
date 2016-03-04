@@ -7,5 +7,9 @@
   },
   "dependencies": {
     "react-native": "^0.21.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-esformatter": "^6.0.0"
   }
 }

@@ -8,10 +8,14 @@ var {
   AppRegistry,
   Component,
   StyleSheet,
+  Navigator,
   Text,
   View
   } = React;
 var LoginView = require('./js/LoginView');
+var SignUpView = require('./js/SignupView');
+
+(route, routeStack) => Navigator.SceneConfigs.FloatFromRight
 
 class reactNativeChat extends Component {
   componentDidMount () {
@@ -19,28 +23,28 @@ class reactNativeChat extends Component {
   }
   render() {
     return (
-      <LoginView style={styles.container} />
+      <Navigator
+        style={styles.container}
+        initialRoute = {{name: 'Signup', index: 0}}
+        renderScene = {this.navigatorRenderScene}
+      />
     );
+  }
+  navigatorRenderScene(route, navigator) {
+    switch (route.name) {
+      case 'Login':
+        return (<LoginView navigator={navigator} title="Login"/>);
+      case 'Signup':
+        return (<SignUpView navigator={navigator} title="Sign Up" />);
+    }
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+    backgroundColor: 'white',
+  }
 });
 
 AppRegistry.registerComponent('reactNativeChat', () => reactNativeChat);
