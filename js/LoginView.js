@@ -31,13 +31,16 @@ class LoginView extends Component {
     DataService.login({
       username: this.state.username,
       password: this.state.password
-    }, function (data) {
-      console.log('login received', data);
-      if (data && !data.err) {
+    }, function (res) {
+      console.log('login received', res);
+      if (res && !res.err) {
         //data.response includes token, expires, user
         console.log("login success");
+        that.props.navigator.push({
+          name: 'ChatList'
+        });
       } else {
-        that.showError(data.response.msg);
+        that.showError(res.response.msg);
       }
     });
   }

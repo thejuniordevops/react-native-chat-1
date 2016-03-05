@@ -1,6 +1,7 @@
-'use strict'
+'use strict';
 var Config = require('./Config');
 var emitter = require('./Emitter');
+var Storage = require('./Storage');
 
 class DataService {
   constructor () {
@@ -62,12 +63,34 @@ class DataService {
     }, cb);
   }
 
-  login (data, cb) {
+  loginWithToken(cb) {
+    var that = this;
+    Storage.getValueForKey('token', (token) => {
+      if (token) {
+        that.doAction({
+          action: 'handshake',
+          token: token
+        }, cb);
+      } else {
+        cb && cb({err: 'no token'})
+      }
+    });
+
+  }
+
+  login (param, cb) {
+    //Storage
     this.doAction({
       action: 'login',
-      username: data.username,
-      password: data.password
-    }, cb);
+      username: param.username,
+      password: param.password
+    }, (res) => {
+      if (res && !res.err) {
+        Storage.setValueForKey('username', res.response.user.username);
+        Storage.setValueForKey('token', res.response.token);
+      }
+      cb && cb(res);
+    });
   }
 }
 module.exports = new DataService();
