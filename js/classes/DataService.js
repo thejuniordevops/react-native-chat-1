@@ -1,5 +1,5 @@
 'use strict';
-var Config = require('./Config');
+var Config = require('./../Config');
 var emitter = require('./Emitter');
 var Storage = require('./Storage');
 
@@ -91,6 +91,18 @@ class DataService {
       }
       cb && cb(res);
     });
+  }
+
+  sendTextMessage(params) {
+    this.doAction({
+      action: 'sendTextMessage',
+      data: {
+        toUsername: params.toUsername,
+        text: params.text
+      }
+    }, (res) => {
+      console.log('sendTextMessage', res);
+    })
   }
 }
 module.exports = new DataService();

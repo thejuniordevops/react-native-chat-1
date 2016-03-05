@@ -5,10 +5,11 @@
 'use strict';
 var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, Navigator, Text, View} = React;
-var LoginView = require('./js/LoginView');
-var SignUpView = require('./js/SignupView');
-var ChatListView = require('./js/ChatListView');
-var LoadingView = require('./js/LoadingView');
+var LoginView = require('./js/views/LoginView');
+var SignUpView = require('./js/views/SignupView');
+var ChatListView = require('./js/views/ChatListView');
+var LoadingView = require('./js/views/LoadingView');
+var NewChatView = require('./js/views/NewChatView');
 
 (route, routeStack) => Navigator.SceneConfigs.FloatFromRight
 
@@ -45,6 +46,8 @@ class reactNativeChat extends Component {
         return (<SignUpView navigator={navigator} title="Sign Up" />);
       case 'ChatList':
         return (<ChatListView navigator={navigator} title="Chat" />);
+      case 'NewChat':
+        return (<NewChatView navigator={navigator} title="New Chat" />);
     }
   }
 }

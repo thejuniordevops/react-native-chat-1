@@ -2,7 +2,7 @@
 
 var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, Text, View} = React;
-var DataService = require('./DataService');
+var DataService = require('../classes/DataService');
 
 class LoadingView extends Component {
 
@@ -30,7 +30,7 @@ class LoadingView extends Component {
   }
 }
 
-var styleCommon = require('./StylesCommon');
+var styleCommon = require('./../StylesCommon');
 
 const styles = StyleSheet.create({
   container: {

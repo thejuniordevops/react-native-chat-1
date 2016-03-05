@@ -2,7 +2,7 @@
 
 var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, View} = React;
-var DataService = require('./DataService');
+var DataService = require('../classes/DataService');
 //var Config = require('./Config');
 
 class SignupView extends Component {
@@ -34,21 +34,17 @@ class SignupView extends Component {
       <View style={styles.container}>
         // name
         <TextInput
-      style={styles.input}
-      placeholder={"name"}
-      placeholderTextColor={"#cccccc"}
-      onChangeText={(name) => this.setState({
-        name
-      })}
-      value={this.state.name}
-      />
+          style={styles.input}
+          placeholder={"name"}
+          placeholderTextColor={"#cccccc"}
+          onChangeText={(name) => this.setState({name})}
+          value={this.state.name}
+        />
         // email
         <TextInput
-      style={styles.input}
-      onChangeText={(email) => this.setState({
-        email
-      })}
-      value={this.state.email}
+          style={styles.input}
+          onChangeText={(email) => this.setState({email})}
+          value={this.state.email}
       />
         <TouchableElement onPress={this.login} style={styles.touchable}>
           <Text style={styles.button}>

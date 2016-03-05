@@ -1,52 +1,55 @@
 'use strict';
 
 var React = require('react-native');
-var {AppRegistry, Component, StyleSheet, TextInput, ActivityIndicatorIOS, TouchableHighlight, Text, View} = React;
-var DataService = require('./DataService');
-var Config = require('./Config');
-var Message = require('./Message');
+var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, TextInput, View} = React;
+var DataService = require('../classes/DataService');
+var Config = require('../Config');
+var LocalizedText = require("../classes/LocalizedText");
 
-class LoginView extends Component {
+class SignupView extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
-      password: '',
-      errMsg: ''
+      username: "",
+      password: "",
+      errMsg: ""
     };
   }
-  componentDidMount() {}
 
-  register() {
-    console.log('register');
-    //DataService.register();
-    this.props.navigator.push({
-      name: 'Signup'
-    });
+  componentDidMount() {
+    DataService.connect();
   }
 
-  login() {
-    console.log('login');
+  register() {
     var that = this;
-    DataService.login({
+    DataService.register({
       username: this.state.username,
       password: this.state.password
-    }, function (res) {
-      console.log('login received', res);
-      if (res && !res.err) {
+    }, function (data) {
+      console.log("register received", data);
+      if (data && !data.err) {
         //data.response includes token, expires, user
-        console.log("login success");
-        that.props.navigator.push({
-          name: 'ChatList'
-        });
+        that.goToStepTwo();
       } else {
-        that.showError(res.response.msg);
+        that.showError(data.response.msg);
       }
     });
   }
 
+  goToStepTwo() {
+
+  }
+
   showError(errMsg) {
     this.setState({errMsg: errMsg});
+  }
+
+  login() {
+    console.log('login');
+    this.props.navigator.push({
+      name: 'Login'
+    });
   }
 
   render() {
@@ -74,30 +77,30 @@ class LoginView extends Component {
           {this.state.errMsg}
         </Text>
         <TouchableElement
-        onPress={this.login.bind(this)}
+        onPress={this.register.bind(this)}
         activeOpacity={0.8}
         underlayColor={Config.styles.colorWhite}
-        style={[styleCommon.touchableButton, styles.login]}>
-            <Text style={styleCommon.buttonMedium}>
-              {Message.text('login')}
-            </Text>
+        style={[styleCommon.touchableButton, styles.register]}>
+        <Text style={styleCommon.buttonMedium}>
+          {LocalizedText.text('sign_up')}
+        </Text>
         </TouchableElement>
 
         <TouchableElement
-        onPress={this.register.bind(this)}
+        onPress={this.login.bind(this)}
         activeOpacity={0.8}
         underlayColor={Config.styles.colorGreen}
-        style={[styleCommon.touchableLink, styles.register]}>
-            <Text style={styleCommon.textLink}>
-              {Message.text('sign_up')}
-            </Text>
+        style={[styleCommon.touchableLink, styles.login]}>
+        <Text style={styleCommon.textLink}>
+          {LocalizedText.text('login')}
+        </Text>
         </TouchableElement>
       </View>
       );
   }
 }
 
-var styleCommon = require('./StylesCommon');
+var styleCommon = require("./../StylesCommon");
 
 const styles = StyleSheet.create({
   container: {
@@ -109,14 +112,13 @@ const styles = StyleSheet.create({
     paddingBottom: 200,
   },
   login: {
-    marginTop: 20,
+    marginTop: 50,
   },
   register: {
-    marginTop: 50,
+    marginTop: 20,
   }
-
 });
 
-AppRegistry.registerComponent('LoginView', () => LoginView);
+AppRegistry.registerComponent('SignupView', () => SignupView);
 
-module.exports = LoginView;
+module.exports = SignupView;

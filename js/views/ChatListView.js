@@ -2,11 +2,11 @@
 
 var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, ListView, View} = React;
-var DataService = require('./DataService');
-var Config = require('./Config');
-var Message = require("./Message");
+var DataService = require('./../classes/DataService');
+var Config = require('./../Config');
+var LocalizedText = require("./../classes/LocalizedText");
 var NavigationBar = require('react-native-navbar');
-var Storage = require('./Storage');
+var Storage = require('./../classes/Storage');
 
 class ChatListView extends Component {
 
@@ -19,6 +19,11 @@ class ChatListView extends Component {
   }
 
   componentDidMount() {
+    /*DataService.sendTextMessage({
+      toUsername: "aas",
+      text: "123"
+    });
+    */
   }
 
   renderSeparator(
@@ -61,10 +66,13 @@ class ChatListView extends Component {
   }
 
   render() {
+    var that = this;
     var rightButtonConfig = {
       title: 'New',
       handler: () => {
-        console.log('new!');
+        that.props.navigator.push({
+          name: 'NewChat'
+        });
       }
     };
     var leftButtonConfig = {
@@ -90,7 +98,7 @@ class ChatListView extends Component {
   }
 }
 
-var styleCommon = require("./StylesCommon");
+var styleCommon = require("./../StylesCommon");
 
 const styles = StyleSheet.create({
   separator: {
