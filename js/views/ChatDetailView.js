@@ -4,6 +4,7 @@ var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, ListView, View} = React;
 var DataService = require('../classes/DataService');
 var ChatHistoryView = require('./ChatHistoryView');
+var ChatMessageInputView = require('./ChatMessageInputView');
 var Config = require('../Config');
 var LocalizedText = require("../classes/LocalizedText");
 var NavigationBar = require('react-native-navbar');
@@ -46,6 +47,7 @@ class ChatDetailView extends Component {
         that.props.navigator.pop();
       }
     };
+
     var TouchableElement = TouchableHighlight; // for ios
     return (
       <View style={[styleCommon.background]}>
@@ -54,8 +56,9 @@ class ChatDetailView extends Component {
         leftButton={leftButtonConfig}
         />
         <ChatHistoryView messages={this.state.messages} />
+        <ChatMessageInputView username={this.props.username} />
       </View>
-      );
+    );
   }
 }
 

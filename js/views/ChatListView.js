@@ -32,6 +32,9 @@ class ChatListView extends Component {
       text: "123"
     });
     */
+    Storage.getChatList(function () {
+
+    })
   }
 
   renderRow(rowData) {
@@ -68,7 +71,9 @@ class ChatListView extends Component {
     var leftButtonConfig = {
       title: 'Setting',
       handler: () => {
-        console.log('Setting!');
+        that.props.navigator.push({
+          name: 'Settings'
+        });
       }
     };
     var TouchableElement = TouchableHighlight; // for ios

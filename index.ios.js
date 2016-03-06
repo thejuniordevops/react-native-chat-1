@@ -11,6 +11,7 @@ var ChatListView = require('./js/views/ChatListView');
 var LoadingView = require('./js/views/LoadingView');
 var NewChatView = require('./js/views/NewChatView');
 var ChatDetailView = require('./js/views/ChatDetailView');
+var SettingsView = require('./js/views/SettingsView');
 
 (route, routeStack) => Navigator.SceneConfigs.FloatFromRight
 
@@ -49,6 +50,8 @@ class reactNativeChat extends Component {
         return (<NewChatView navigator={navigator} />);
       case 'ChatDetail':
         return (<ChatDetailView navigator={navigator} username={route.username} />);
+      case 'Settings':
+        return (<SettingsView navigator={navigator} />);
     }
   }
 }

@@ -6,6 +6,10 @@ var enUS = {
   login: 'Login',
   to_username: 'Username',
   start_new_chat: 'Start Chat',
-  chat: 'Chat'
+  chat: 'Chat',
+  send: 'Send',
+  new_conversation: 'New Conversation',
+  logout: 'Logout',
+  setting: 'Setting'
 };
 module.exports = enUS;

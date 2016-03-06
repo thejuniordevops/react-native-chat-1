@@ -61,7 +61,7 @@ class SignupView extends Component {
         onChangeText={(username) => this.setState({
           username
         })}
-        placeholder={Message.text('username')}
+        placeholder={LocalizedText.text('username')}
         value={this.state.username}
         />
         <TextInput
@@ -70,7 +70,7 @@ class SignupView extends Component {
         onChangeText={(password) => this.setState({
           password
         })}
-        placeholder={Message.text('password')}
+        placeholder={LocalizedText.text('password')}
         value={this.state.password}
         />
         <Text style={styleCommon.error}>

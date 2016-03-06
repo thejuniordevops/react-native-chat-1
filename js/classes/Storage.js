@@ -2,6 +2,26 @@
 
 var SQLite = require('react-native-sqlite-storage');
 
+/**
+ * DB tables
+ *
+ * Table user_defaults
+ * key(primary):string, value:string
+ *
+ * Table recent_chats to show in the chat list
+ * id(INDEX):int, chat_id:string
+ *
+ * Table conversation, all conversations are group chats
+ * id(index):string (Mongodb object id), last_message:string, last_message_ts:int
+ *
+ * Table message
+ * id(index):int, conversation_id:string, text:string, timestamp:int, from_username:string
+ *
+ * Contacts
+ * id(index):int, user_id:string (Mongodb id), username:string, display_name:string
+ *
+ */
+
 class Storage {
   constructor () {
     this.db = SQLite.openDatabase('chat.db', '1.0', 'Chat Database', 200000, this.openCB.bind(this), this.errorCB.bind(this));
@@ -35,7 +55,14 @@ class Storage {
   }
 
   createUserDefaultsTable() {
-    this.execQuery('CREATE TABLE IF NOT EXISTS `user_defaults` (`key` varchar(50) NOT NULL,`value` varchar(500) NOT NULL,PRIMARY KEY (`key`));');
+    this.execQuery('CREATE TABLE IF NOT EXISTS `user_defaults` ' +
+      '(`key` varchar(50) NOT NULL,`value` varchar(500) NOT NULL,' +
+      'PRIMARY KEY (`key`));');
+  }
+
+  createChatListTable() {
+    this.execQuery('CREATE TABLE IF NOT EXISTS `chat_list` ' +
+      '(`id` int(11) NOT NULL,`key` varchar(50) NOT NULL,`value` varchar(500) NOT NULL,PRIMARY KEY (`key`));');
   }
 
   setValueForKey(key, value) {
@@ -51,6 +78,14 @@ class Storage {
         cb && cb(null);
       }
     });
+  }
+
+  updateConversatio() {
+
+  }
+
+  getChatList() {
+
   }
 
   execQuery(query, cb) {

@@ -2,11 +2,11 @@
 
 var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, TextInput, ListView, View} = React;
-var DataService = require('./../classes/DataService');
-var Config = require('./../Config');
-var LocalizedText = require("./../classes/LocalizedText");
+var DataService = require('../classes/DataService');
+var Config = require('../Config');
+var LocalizedText = require("../classes/LocalizedText");
 var NavigationBar = require('react-native-navbar');
-var Storage = require('./../classes/Storage');
+var Storage = require('../classes/Storage');
 
 class NewChatView extends Component {
 
@@ -25,22 +25,33 @@ class NewChatView extends Component {
   }
 
   render() {
+    var that = this;
+    var leftButtonConfig = {
+      title: 'back',
+      handler: () => {
+        that.props.navigator.pop();
+      }
+    };
     var TouchableElement = TouchableHighlight; // for ios
     return (
       <View style={[styleCommon.background, styles.container]}>
+        <NavigationBar
+          title={{title: LocalizedText.text('new_conversation')}}
+          leftButton={leftButtonConfig}
+        />
         <TextInput
-      style={[styleCommon.input, styles.input]}
-      onChangeText={(toUsername) => this.setState({
-        toUsername
-      })}
-      placeholder={LocalizedText.text('to_username')}
-      value={this.state.toUsername}
-      />
+          style={[styleCommon.input, styles.input]}
+          onChangeText={(toUsername) => this.setState({
+            toUsername
+          })}
+          placeholder={LocalizedText.text('to_username')}
+          value={this.state.toUsername}
+        />
         <TouchableElement
-      onPress={this.startChat.bind(this)}
-      activeOpacity={0.8}
-      underlayColor={Config.styles.colorWhite}
-      style={[styleCommon.touchableLink, styles.button]}>
+          onPress={this.startChat.bind(this)}
+          activeOpacity={0.8}
+          underlayColor={Config.styles.colorWhite}
+          style={[styleCommon.touchableLink, styles.button]}>
           <Text style={styleCommon.buttonMedium}>
             {LocalizedText.text('start_new_chat')}
           </Text>
