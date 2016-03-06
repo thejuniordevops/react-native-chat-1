@@ -10,6 +10,7 @@ var SignUpView = require('./js/views/SignupView');
 var ChatListView = require('./js/views/ChatListView');
 var LoadingView = require('./js/views/LoadingView');
 var NewChatView = require('./js/views/NewChatView');
+var ChatDetailView = require('./js/views/ChatDetailView');
 
 (route, routeStack) => Navigator.SceneConfigs.FloatFromRight
 
@@ -21,9 +22,7 @@ class reactNativeChat extends Component {
     };
   }
 
-  componentDidMount() {
-
-  }
+  componentDidMount() {}
   render() {
     return (
       <Navigator
@@ -41,13 +40,15 @@ class reactNativeChat extends Component {
       case 'Loading':
         return (<LoadingView navigator={navigator} />);
       case 'Login':
-        return (<LoginView navigator={navigator} title="Login"/>);
+        return (<LoginView navigator={navigator}/>);
       case 'Signup':
-        return (<SignUpView navigator={navigator} title="Sign Up" />);
+        return (<SignUpView navigator={navigator} />);
       case 'ChatList':
-        return (<ChatListView navigator={navigator} title="Chat" />);
+        return (<ChatListView navigator={navigator} />);
       case 'NewChat':
-        return (<NewChatView navigator={navigator} title="New Chat" />);
+        return (<NewChatView navigator={navigator} />);
+      case 'ChatDetail':
+        return (<ChatDetailView navigator={navigator} username={route.username} />);
     }
   }
 }

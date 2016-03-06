@@ -5,6 +5,7 @@ var enUS = {
   signup: 'Signup',
   login: 'Login',
   to_username: 'Username',
-  start_new_chat: 'Start Chat'
+  start_new_chat: 'Start Chat',
+  chat: 'Chat'
 };
 module.exports = enUS;

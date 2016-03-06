@@ -12,9 +12,17 @@ class ChatListView extends Component {
 
   constructor(props) {
     super(props);
-    var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    var ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2
+    });
     this.state = {
-      dataSource: ds.cloneWithRows([{title: 'user 1', lastMessage: 'did you?'}, {title: 'user 2', lastMessage: 'you, too?'}])
+      dataSource: ds.cloneWithRows([{
+        title: 'user 1',
+        lastMessage: 'did you?'
+      }, {
+        title: 'user 2',
+        lastMessage: 'you, too?'
+      }])
     };
   }
 
@@ -26,24 +34,6 @@ class ChatListView extends Component {
     */
   }
 
-  renderSeparator(
-    sectionID: number | string,
-    rowID: number | string,
-    adjacentRowHighlighted: boolean
-  ) {
-    var style = styles.rowSeparator;
-    if (adjacentRowHighlighted) {
-      style = [style, styles.rowSeparatorHide];
-    }
-    return (
-      <View key={'SEP_' + sectionID + '_' + rowID}  style={style}/>
-    );
-  }
-
-  hasMore() {
-
-  }
-
   renderRow(rowData) {
     return (
       <Text>
@@ -52,17 +42,17 @@ class ChatListView extends Component {
     );
   }
 
-  onEndReached () {
-
-  }
+  onEndReached() {}
 
 
   renderFooter() {
     return (
-      <View  style={{alignItems: 'center'}}>
+      <View  style={{
+        alignItems: 'center'
+      }}>
         END
       </View>
-    );
+      );
   }
 
   render() {
@@ -85,13 +75,15 @@ class ChatListView extends Component {
     return (
       <View style={[styleCommon.background, styles.container]}>
         <NavigationBar
-          title={{title: this.props.title}}
-          leftButton={leftButtonConfig}
-          rightButton={rightButtonConfig}
+        title={{
+          title: LocalizedText.text('chat')
+        }}
+        leftButton={leftButtonConfig}
+        rightButton={rightButtonConfig}
         />
         <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this.renderRow}
+        dataSource={this.state.dataSource}
+        renderRow={this.renderRow}
         />
       </View>
       );
