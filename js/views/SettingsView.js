@@ -6,6 +6,7 @@ var Storage = require('../classes/Storage');
 var Config = require('../Config');
 var LocalizedText = require('../classes/LocalizedText');
 var NavigationBar = require('react-native-navbar');
+var DataService = require('../classes/DataService');
 
 class SettingsView extends Component {
   constructor(props) {
@@ -24,6 +25,7 @@ class SettingsView extends Component {
     this.props.navigator.push({
       name: 'Login'
     });
+    DataService.logout();
   }
 
   render() {

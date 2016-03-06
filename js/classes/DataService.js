@@ -38,31 +38,45 @@ class DataService {
     };
   }
 
-  autoConnect(cb) {
+  /**
+   *
+   * @param cb
+   * @param skipHandshake {boolean} (optional)
+   */
+  autoConnect(cb, skipHandshake) {
     var that = this;
     if (!this.ws) {
       this.connect(() => {
-        that.reHandshake(cb);
+        if (!skipHandshake) {
+          that.reHandshake(cb);
+        } else {
+          cb && cb();
+        }
       });
     } else {
       cb && cb();
     }
   }
 
-  doAction (params, cb) {
+  /**
+   * @param params
+   * @param cb
+   * @param skipHandshake {boolean} (optional)
+   */
+  doAction (params, cb, skipHanshake) {
     var that = this;
     emitter.once(params.action, cb);
     this.autoConnect(() => {
       that.ws.send(JSON.stringify(params));
-    });
+    }, skipHanshake);
   }
 
-  register(data, cb) {
+  register(params, cb) {
     this.doAction({
       action: 'register',
-      username: data.username,
-      password: data.password
-    }, cb);
+      username: params.username,
+      password: params.password
+    }, cb, true);
   }
 
   /**
@@ -112,6 +126,7 @@ class DataService {
 
   postHandshake(res, cb) {
     if (res && !res.err) {
+      console.log('post_handshake', res.response);
       Storage.setValueForKey('username', res.response.user.username);
       Storage.setValueForKey('token', res.response.token);
     }
@@ -121,16 +136,28 @@ class DataService {
   /**
    *
    */
-  login (param, cb) {
+  login (params, cb) {
     var that = this;
     this.doAction({
       action: 'login',
-      username: param.username,
-      password: param.password
+      username: params.username,
+      password: params.password
     }, (res) => {
       that.postHandshake(res);
       cb && cb(res);
+    }, true); // skip handshake
+  }
+
+  logout (cb) {
+    var myInfo = Storage.getMyInfo();
+    this.doAction({
+      action: 'logout',
+      username: myInfo.username
     });
+    Storage.setValueForKey('username', "");
+    Storage.setValueForKey('token', "");
+    console.log('close ws');
+    this.ws.close(); // TODO: this seems to be not working
   }
 
   /**
