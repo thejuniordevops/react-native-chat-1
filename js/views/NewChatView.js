@@ -18,9 +18,24 @@ class NewChatView extends Component {
   }
 
   startChat() {
-    this.props.navigator.replace({
-      name: 'ChatDetail',
-      username: this.state.toUsername
+    var that = this;
+    var myInfo = Storage.getMyInfo();
+    if (myInfo.username == this.state.toUsername) {
+      alert('cannot chat with your self');
+      return;
+    }
+    DataService.usernameLookUp({username: this.state.toUsername}, (res) => {
+      if (res.err) {
+        //TODO: show some error messages (invalid username)
+        console.log('start chat error');
+      } else {
+        that.props.navigator.replace({
+          name: 'ChatDetail',
+          username: that.state.toUsername
+        });
+        console.log('start chat with user', res.response.data);
+        // TODO: store this user's data into cache?
+      }
     });
   }
 

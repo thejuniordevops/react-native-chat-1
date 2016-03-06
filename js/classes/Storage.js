@@ -23,8 +23,10 @@ var SQLite = require('react-native-sqlite-storage');
  */
 
 class Storage {
+
   constructor () {
     this.db = SQLite.openDatabase('chat.db', '1.0', 'Chat Database', 200000, this.openCB.bind(this), this.errorCB.bind(this));
+    this.cached = {};
   }
 
   errorCB(err) {
@@ -67,17 +69,30 @@ class Storage {
 
   setValueForKey(key, value) {
     this.execQuery('INSERT OR REPLACE INTO `user_defaults` (`key`,`value`) VALUES ("' + key + '","' + value + '")');
+    this.cached[key] = value;
   }
 
   getValueForKey(key, cb) {
+    if (typeof(this.cached[key]) != 'undefined') {
+      cb && cb(this.cached[key]);
+      return;
+    }
+    var that = this;
     this.execQuery('SELECT value FROM `user_defaults` WHERE `key`="' + key + '"', (results) => {
       if (results.rows.length > 0) {
         var ret = results.rows.item(0);
+        that.cached[key] = ret.value;
         cb && cb(ret.value);
       } else {
         cb && cb(null);
       }
     });
+  }
+
+  getMyInfo() {
+    return {
+      username: this.cached['username']
+    };
   }
 
   updateConversatio() {
