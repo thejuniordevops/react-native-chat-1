@@ -33,10 +33,16 @@ class ChatDetailView extends Component {
       ts: '3 hours ago',
       fromUsername: 'qwe',
       message: 'I\'m fine. And you?'
-    }]; //Storage.getMessages(this.props.username);
+    }]; //Storage.getMessages(this.props.conversationId);
     this.setState({
       messages: messages
     });
+  }
+
+  send(params) {
+    params.conversationId = this.props.conversation.id;
+    console.log('send message', params);
+    // TODO: send message to server
   }
 
   render() {
@@ -52,11 +58,11 @@ class ChatDetailView extends Component {
     return (
       <View style={[styleCommon.background]}>
         <NavigationBar
-        title={{title: this.props.username}}
+        title={{title: this.props.conversation.id}}
         leftButton={leftButtonConfig}
         />
         <ChatHistoryView messages={this.state.messages} />
-        <ChatMessageInputView username={this.props.username} />
+        <ChatMessageInputView onSend={this.send.bind(this)} />
       </View>
     );
   }

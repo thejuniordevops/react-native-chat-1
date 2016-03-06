@@ -29,12 +29,16 @@ class NewChatView extends Component {
         //TODO: show some error messages (invalid username)
         console.log('start chat error');
       } else {
-        that.props.navigator.replace({
-          name: 'ChatDetail',
-          username: that.state.toUsername
+
+        DataService.newConversation({userIds: [res.response.data._id]}, (conversation) => {
+          console.log("newchatView conversation", conversation);
+          conversation.id = conversation._id; //convert mongo _id to local Storage like format
+          that.props.navigator.replace({
+            name: 'ChatDetail',
+            conversation: conversation
+          });
         });
         console.log('start chat with user', res.response.data);
-        // TODO: store this user's data into cache?
       }
     });
   }

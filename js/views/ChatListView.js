@@ -2,60 +2,75 @@
 
 var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, ListView, View} = React;
-var DataService = require('./../classes/DataService');
-var Config = require('./../Config');
-var LocalizedText = require("./../classes/LocalizedText");
+var DataService = require('../classes/DataService');
+var Config = require('../Config');
+var LocalizedText = require("../classes/LocalizedText");
 var NavigationBar = require('react-native-navbar');
-var Storage = require('./../classes/Storage');
+var Storage = require('../classes/Storage');
+var ChatSummaryCellView = require('./ChatSummaryCellView');
 
 class ChatListView extends Component {
 
   constructor(props) {
     super(props);
     var ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2
+      rowHasChanged: (r1, r2) => {r1 != r2}
     });
     this.state = {
-      dataSource: ds.cloneWithRows([{
-        title: 'user 1',
-        lastMessage: 'did you?'
-      }, {
-        title: 'user 2',
-        lastMessage: 'you, too?'
-      }])
+      dataSource: ds
     };
   }
 
+  getDataSource(rows: Array<any>): ListView.DataSource {
+    var rowIds = [];
+    for (var i = 0; i < rows.length; i++) {
+      rowIds.push(rows[i].id);
+    }
+    return this.state.dataSource.cloneWithRows(rows, rowIds);
+  }
+
   componentDidMount() {
-    /*DataService.sendTextMessage({
-      toUsername: "aas",
-      text: "123"
+    var that = this;
+    Storage.getConversations((results) => {
+      var newListData = [];
+      for (var i = 0; i < results.rows.length; i++) {
+        newListData.push({
+          id: results.rows.item(i).id,
+          displayName: results.rows.item(i).display_name,
+          lastMessage: results.rows.item(i).last_message,
+          lastMessageTS: results.rows.item(i).last_message_ts
+        });
+      }
+      console.log('ChatList', newListData);
+      that.setState({dataSource: that.state.dataSource.cloneWithRows(newListData)});
     });
-    */
-    Storage.getChatList(function () {
-
-    })
   }
 
-  renderRow(rowData) {
+  selectConversation(conversation) {
+    console.log('selectConversation', conversation);
+    this.props.navigator.push({
+      name: 'ChatDetail',
+      conversation: conversation
+    });
+  }
+
+  renderRow(
+    conversation: Object,
+    sectionID: number | string,
+    rowID: number | string,
+    highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void
+  ) {
     return (
-      <Text>
-        {rowData.title} : {rowData.lastMessage}
-      </Text>
+      <ChatSummaryCellView
+        onSelect={() => this.selectConversation(conversation)}
+        id={conversation.id}
+        displayName={conversation.displayName}
+        lastMessage={conversation.lastMessage}
+        lastMessageTS={conversation.lastMessageTS}
+        onHighlight={() => highlightRowFunc(sectionID, rowID)}
+        onUnhighlight={() => highlightRowFunc(null, null)}
+      />
     );
-  }
-
-  onEndReached() {}
-
-
-  renderFooter() {
-    return (
-      <View  style={{
-        alignItems: 'center'
-      }}>
-        END
-      </View>
-      );
   }
 
   render() {
@@ -88,8 +103,9 @@ class ChatListView extends Component {
         />
         <ListView
         dataSource={this.state.dataSource}
-        renderRow={this.renderRow}
+        renderRow={this.renderRow.bind(this)}
         />
+        <Text>{this.state.test}</Text>
       </View>
       );
   }

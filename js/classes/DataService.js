@@ -154,8 +154,7 @@ class DataService {
       action: 'logout',
       username: myInfo.username
     });
-    Storage.setValueForKey('username', "");
-    Storage.setValueForKey('token', "");
+    Storage.nukeDB();
     console.log('close ws');
     this.ws.close(); // TODO: this seems to be not working
   }
@@ -172,6 +171,24 @@ class DataService {
     });
   }
 
+  /**
+   *  @param params {userIds: [string]}
+   */
+  newConversation(params, cb) {
+    this.doAction({
+      action: 'newConversation',
+      data: {
+        user_ids: params.userIds
+      }
+    }, (res) => {
+      if (res && !res.err) {
+        //save this into Storage
+        Storage.newConversation(res.response.data);
+        cb && cb(res.response.data);
+      }
+    });
+  }
+
   sendTextMessage(params) {
     this.doAction({
       action: 'sendTextMessage',
@@ -181,7 +198,7 @@ class DataService {
       }
     }, (res) => {
       console.log('sendTextMessage', res);
-    })
+    });
   }
 }
 module.exports = new DataService();

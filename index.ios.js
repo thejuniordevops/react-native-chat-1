@@ -49,7 +49,7 @@ class reactNativeChat extends Component {
       case 'NewChat':
         return (<NewChatView navigator={navigator} />);
       case 'ChatDetail':
-        return (<ChatDetailView navigator={navigator} username={route.username} />);
+        return (<ChatDetailView navigator={navigator} conversation={route.conversation} />);
       case 'Settings':
         return (<SettingsView navigator={navigator} />);
     }

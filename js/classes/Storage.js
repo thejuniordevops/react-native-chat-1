@@ -12,7 +12,9 @@ var SQLite = require('react-native-sqlite-storage');
  * id(INDEX):int, chat_id:string
  *
  * Table conversation, all conversations are group chats
- * id(index):string (Mongodb object id), last_message:string, last_message_ts:int
+ * id(index):string (Mongodb object id),
+ * members:array (members user_ids), created_by:string (Mongodb object id)
+ * last_message:string, last_message_ts:int
  *
  * Table message
  * id(index):int, conversation_id:string, text:string, timestamp:int, from_username:string
@@ -48,12 +50,14 @@ class Storage {
     */
   }
 
-  nukeUserDefaultsTable() {
+  nukeDB() {
     this.execQuery('DROP TABLE `user_defaults`');
+    this.execQuery('DROP TABLE `conversation`');
   }
 
   init() {
     this.createUserDefaultsTable();
+    this.createConversationTable();
   }
 
   createUserDefaultsTable() {
@@ -62,9 +66,15 @@ class Storage {
       'PRIMARY KEY (`key`));');
   }
 
-  createChatListTable() {
-    this.execQuery('CREATE TABLE IF NOT EXISTS `chat_list` ' +
-      '(`id` int(11) NOT NULL,`key` varchar(50) NOT NULL,`value` varchar(500) NOT NULL,PRIMARY KEY (`key`));');
+  createConversationTable() {
+    this.execQuery('CREATE TABLE IF NOT EXISTS `conversation` ' +
+      '(`id` varchar(64) NOT NULL,' +
+      '`members` varchar(1000) NOT NULL,' +
+      '`display_name` varchar(1000) NOT NULL,' +
+      '`created_by` varchar(64) NOT NULL,' +
+      '`last_message` varchar(500) NOT NULL,' +
+      '`last_message_ts` int(11) NOT NULL,' +
+      'PRIMARY KEY (`id`));');
   }
 
   setValueForKey(key, value) {
@@ -95,7 +105,24 @@ class Storage {
     };
   }
 
-  updateConversatio() {
+  newConversation(params, cb) {
+    console.log('newConversation', params);
+    var query = 'INSERT INTO `conversation` ' +
+    '(`id`, `members`, `display_name`, `created_by`, `last_message`, `last_message_ts`) VALUES ' +
+    '("' + params._id +'", "' + params.members.join(',') + '", "' +
+    params.displayName + '", "' + params.created_by + '","", 0)';
+    this.execQuery(query, (results) => {
+      cb && cb();
+    })
+  }
+
+  getConversations(cb) {
+    this.execQuery('SELECT * FROM `conversation`', (results) => {
+      cb && cb(results);
+    })
+  }
+
+  updateConversation() {
 
   }
 

@@ -15,14 +15,10 @@ class ChatMessageInputView extends Component {
     };
   }
 
-  renderRow(rowData) {
-    return (
-      <MessageView ts={rowData.ts} message={rowData.message} fromUsername={rowData.fromUsername} />
-    );
-  }
-
   sendMessage () {
-    console.log('send', this.props.username, this.state.message);
+    if (this.props.onSend) {
+      this.props.onSend({message: this.state.message});
+    }
   }
 
   render() {
