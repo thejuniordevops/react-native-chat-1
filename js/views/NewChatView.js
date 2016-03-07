@@ -25,20 +25,19 @@ class NewChatView extends Component {
       return;
     }
     DataService.usernameLookUp({username: this.state.toUsername}, (res) => {
-      if (res.err) {
+      if (res.err || !res.response.data) {
         //TODO: show some error messages (invalid username)
-        console.log('start chat error');
+        console.log('NewChatView:start chat error');
       } else {
-
         DataService.newConversation({userIds: [res.response.data._id]}, (conversation) => {
-          console.log("newchatView conversation", conversation);
+          console.log("newchatView: conversation", conversation);
           conversation.id = conversation._id; //convert mongo _id to local Storage like format
           that.props.navigator.replace({
             name: 'ChatDetail',
             conversation: conversation
           });
         });
-        console.log('start chat with user', res.response.data);
+        console.log('NewChatView:start chat with user', res.response.data);
       }
     });
   }

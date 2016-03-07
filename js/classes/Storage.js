@@ -113,7 +113,7 @@ class Storage {
 
   newConversation(params, cb) {
     console.log('Storage:newConversation', params);
-    var query = 'INSERT INTO `conversation` ' +
+    var query = 'INSERT OR REPLACE INTO `conversation` ' +
     '(`id`, `members`, `display_name`, `created_by`, `last_message`, `last_message_ts`) VALUES ' +
     '("' + params._id +'", "' + params.members.join(',') + '", "' +
     params.displayName + '", "' + params.created_by + '","", 0)';

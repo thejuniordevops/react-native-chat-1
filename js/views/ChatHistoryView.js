@@ -2,10 +2,6 @@
 
 var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, ListView, View} = React;
-//var DataService = require('./../classes/DataService');
-//var Config = require('./../Config');
-//var LocalizedText = require("./../classes/LocalizedText");
-//var Storage = require('./../classes/Storage');
 var MessageView = require('./MessageView');
 
 class ChatHistoryView extends Component {

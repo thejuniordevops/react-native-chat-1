@@ -30,6 +30,10 @@ class ChatListView extends Component {
   }
 
   componentDidMount() {
+    this.updateDataSource();
+  }
+
+  updateDataSource() {
     var that = this;
     Storage.getConversations((results) => {
       var newListData = [];
@@ -41,12 +45,19 @@ class ChatListView extends Component {
     });
   }
 
+  onNewConversation() {
+    // TODO: listen to an event new converation created, then update the list
+    this.updateDataSource()
+  }
+
   selectConversation(conversation) {
     console.log('selectConversation', conversation);
     this.props.navigator.push({
       name: 'ChatDetail',
       conversation: conversation
     });
+    // Temporary for testing
+    DataService.getNewMessages();
   }
 
   renderRow(
@@ -84,6 +95,7 @@ class ChatListView extends Component {
         that.props.navigator.push({
           name: 'Settings'
         });
+        that.updateDataSource();
       }
     };
     var TouchableElement = TouchableHighlight; // for ios

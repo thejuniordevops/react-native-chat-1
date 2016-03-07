@@ -20,20 +20,20 @@ class DataService {
     var that = this;
     this.ws.onopen = () => {
       // connection opened
-      console.log("connection opened");
+      console.log("DataService:connection opened");
       cb && cb();
     };
 
     this.ws.onmessage = (e) => {
       // a message was received
       var r = this.parseRes(e);
-      console.log("onmessage received", r);
+      console.log("DataService:onmessage received", r);
       emitter.emit(r.action, r.data);
     };
 
     this.ws.close = (e) => {
       // a message was received
-      console.log("connection closed");
+      console.log("DataService:connection closed");
       that.ws = null;
     };
   }
@@ -126,7 +126,7 @@ class DataService {
 
   postHandshake(res, cb) {
     if (res && !res.err) {
-      console.log('post_handshake', res.response);
+      console.log('DataService:post_handshake', res.response);
       Storage.setValueForKey('username', res.response.user.username);
       Storage.setValueForKey('token', res.response.token);
     }
@@ -189,6 +189,27 @@ class DataService {
     });
   }
 
+  /**
+   * Get conversation info from server
+   */
+  getConversations(params, cb) {
+    this.doAction({
+      action: 'getConversations',
+      data: {
+        conversation_ids: params.conversationIds
+      }
+    }, (res) => {
+      if (res && !res.err && res.response.data.length > 0) {
+        //save this into Storage
+        console.log('getConversations:res.response.data', res.response.data);
+        res.response.data.forEach((conversation) => {
+          Storage.newConversation(conversation);
+        });
+        cb && cb(res.response.data);
+      }
+    });
+  }
+
   sendTextMessage(params, cb) {
     this.doAction({
       action: 'sendTextMessage',
@@ -198,7 +219,7 @@ class DataService {
       }
     }, (res) => {
       if (res && !res.err) {
-        console.log('sendTextMessage', res.response.data);
+        console.log('DataService:sendTextMessage', res.response.data);
         /*
          {_id: ObjectId,
          created_by: '56dcde2941118427247c1e5d',
@@ -213,6 +234,45 @@ class DataService {
         cb && cb(res.response.data);
       }
     });
+  }
+
+  getNewMessages(params, cb) {
+    var that = this;
+    // First, let's retrive all new messages from the server
+    this.doAction({
+      action: 'getNewMessages',
+      data: {}
+    }, (res) => {
+      // res.data is an array containing Message models
+      // If ther are any new message, we will store them into db
+      if (res.response.data.length > 0) {
+        var messageIds = res.response.data.map((n) => {return n._id});
+        // Acknowledge the message so that server can delete this notif
+        that.acknowledgeNewMessages({message_ids: messageIds});
+        // store the message
+        res.response.data.forEach((message) => {
+          Storage.newMessage(message);
+        });
+        // Next fetch the conversation info. Because the conversation data could be updated on the server side
+        var conversationIds = res.response.data.map((n) => {return n.conversation_id});
+        that.getConversations({conversationIds: conversationIds});
+        cb && cb(res.data);
+      }
+
+    });
+  }
+
+  acknowledgeNewMessages(params, cb) {
+    this.doAction({
+      action: 'acknowledgeNewMessages',
+      data: {message_ids: params.message_ids}
+    }, (res) => {
+
+    });
+  }
+
+  getMessage(params, cb) {
+
   }
 }
 module.exports = new DataService();
