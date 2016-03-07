@@ -26,9 +26,9 @@ class ChatHistoryView extends Component {
     });
   }
 
-  renderRow(rowData) {
+  renderRow(message) {
     return (
-      <MessageView ts={rowData.ts} message={rowData.message} fromUsername={rowData.fromUsername} />
+      <MessageView ts={message.created_at} text={message.text} fromUserId={message.created_by} />
     );
   }
 

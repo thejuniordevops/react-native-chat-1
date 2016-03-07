@@ -18,7 +18,7 @@ class LoginView extends Component {
   componentDidMount() {}
 
   register() {
-    console.log('register');
+    console.log('LoginView:register');
     //DataService.register();
     this.props.navigator.push({
       name: 'Signup'
@@ -26,16 +26,16 @@ class LoginView extends Component {
   }
 
   login() {
-    console.log('login');
+    console.log('LoginView:login');
     var that = this;
     DataService.login({
       username: this.state.username,
       password: this.state.password
     }, function (res) {
-      console.log('login received', res);
+      console.log('LoginView:login received', res);
       if (res && !res.err) {
         //data.response includes token, expires, user
-        console.log("login success");
+        console.log("LoginView:login success");
         that.props.navigator.push({
           name: 'ChatList'
         });

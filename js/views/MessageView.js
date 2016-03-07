@@ -16,10 +16,12 @@ class MessageView extends Component {
 
   render() {
     //var TouchableElement = TouchableHighlight; // for ios
+    var date = new Date(this.props.ts);
     return (
       <View style={[styles.container]}>
-        <Text style={styles.messageText}>{this.props.message}</Text>
-        <Text style={styles.tsText}>{this.props.ts}</Text>
+        <Text style={styles.messageText}>{this.props.text}</Text>
+        <Text style={styles.username}>{this.props.fromUserId}</Text>
+        <Text style={styles.tsText}>{date.toString()}</Text>
       </View>
     );
   }
@@ -30,6 +32,9 @@ var styleCommon = require('./../StylesCommon');
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Config.styles.colorWhite,
+  },
+  username: {
+
   },
   messageText: {
     color: '#333333',

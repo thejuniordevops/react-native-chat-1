@@ -189,15 +189,29 @@ class DataService {
     });
   }
 
-  sendTextMessage(params) {
+  sendTextMessage(params, cb) {
     this.doAction({
       action: 'sendTextMessage',
       data: {
-        toUsername: params.toUsername,
+        conversation_id: params.conversation_id,
         text: params.text
       }
     }, (res) => {
-      console.log('sendTextMessage', res);
+      if (res && !res.err) {
+        console.log('sendTextMessage', res.response.data);
+        /*
+         {_id: ObjectId,
+         created_by: '56dcde2941118427247c1e5d',
+         created_at: '2016-03-07T03:07:20.632Z',
+         text: '21333',
+         conversation_id: '56dc8c259df943742f4ba3a0',
+         recipients: [ '56d92d4007886a7e0d02c5cd' ],
+         meta: { type: 'text' } }
+         */
+        // TODO: store it into db
+        Storage.newMessage(res.response.data);
+        cb && cb(res.response.data);
+      }
     });
   }
 }

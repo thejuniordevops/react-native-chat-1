@@ -34,14 +34,9 @@ class ChatListView extends Component {
     Storage.getConversations((results) => {
       var newListData = [];
       for (var i = 0; i < results.rows.length; i++) {
-        newListData.push({
-          id: results.rows.item(i).id,
-          displayName: results.rows.item(i).display_name,
-          lastMessage: results.rows.item(i).last_message,
-          lastMessageTS: results.rows.item(i).last_message_ts
-        });
+        newListData.push(results.rows.item(i));
       }
-      console.log('ChatList', newListData);
+      console.log('ChatListView: dataSource', newListData);
       that.setState({dataSource: that.state.dataSource.cloneWithRows(newListData)});
     });
   }
@@ -64,9 +59,9 @@ class ChatListView extends Component {
       <ChatSummaryCellView
         onSelect={() => this.selectConversation(conversation)}
         id={conversation.id}
-        displayName={conversation.displayName}
-        lastMessage={conversation.lastMessage}
-        lastMessageTS={conversation.lastMessageTS}
+        displayName={conversation.display_name}
+        lastMessage={conversation.last_message}
+        lastMessageTS={conversation.last_message_ts}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
       />

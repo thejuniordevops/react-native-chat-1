@@ -17,7 +17,7 @@ class ChatMessageInputView extends Component {
 
   sendMessage () {
     if (this.props.onSend) {
-      this.props.onSend({message: this.state.message});
+      this.props.onSend({text: this.state.message});
     }
   }
 

@@ -25,24 +25,32 @@ class ChatDetailView extends Component {
   }
 
   getMessages() {
-    var messages = [{
-      ts: 'yesterday',
-      fromUsername: 'asd',
-      message: 'How are you'
-    }, {
-      ts: '3 hours ago',
-      fromUsername: 'qwe',
-      message: 'I\'m fine. And you?'
-    }]; //Storage.getMessages(this.props.conversationId);
-    this.setState({
-      messages: messages
+    var that = this;
+    Storage.getMessages({conversationId: this.props.conversation.id}, (results) => {
+      var messages = [];
+      for (var i = 0; i < results.rows.length; i++) {
+        messages.unshift(results.rows.item(i));
+      }
+      console.log('ChatDetailView:getMessages rows.length=' + results.rows.length, messages);
+      that.setState({
+        messages: messages
+      });
     });
+
   }
 
+  /**
+   *
+   * @param params {text: {string}}
+   */
   send(params) {
-    params.conversationId = this.props.conversation.id;
-    console.log('send message', params);
-    // TODO: send message to server
+    params.conversation_id = this.props.conversation.id;
+    console.log('ChatDetailView:send message', params);
+    var that = this;
+    // send message to server
+    DataService.sendTextMessage(params, (response) => {
+      that.getMessages();
+    });
   }
 
   render() {

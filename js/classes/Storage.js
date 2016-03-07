@@ -17,7 +17,7 @@ var SQLite = require('react-native-sqlite-storage');
  * last_message:string, last_message_ts:int
  *
  * Table message
- * id(index):int, conversation_id:string, text:string, timestamp:int, from_username:string
+ * id(index):objectId, conversation_id:objectId, text:string, meta: string, create_at:int, created_by:objectId
  *
  * Contacts
  * id(index):int, user_id:string (Mongodb id), username:string, display_name:string
@@ -32,22 +32,16 @@ class Storage {
   }
 
   errorCB(err) {
-    console.log('SQL Error: ' + err);
+    console.log('Storage:SQL Error: ' + err);
   }
 
   successCB() {
-    console.log('SQL executed fine');
+    console.log('Storage:SQL executed fine');
   }
 
   openCB() {
-    console.log('Database OPENED');
-    //this.nukeUserDefaultsTable();
+    console.log('Storage:Database OPENED');
     this.init();
-    //this.setValueForKey("username", "asd");
-    /*var username = this.getValueForKey('username', (result) => {
-      console.log('username', result)
-    });
-    */
   }
 
   nukeDB() {
@@ -58,6 +52,7 @@ class Storage {
   init() {
     this.createUserDefaultsTable();
     this.createConversationTable();
+    this.createMessageTable();
   }
 
   createUserDefaultsTable() {
@@ -75,6 +70,17 @@ class Storage {
       '`last_message` varchar(500) NOT NULL,' +
       '`last_message_ts` int(11) NOT NULL,' +
       'PRIMARY KEY (`id`));');
+  }
+
+  createMessageTable() {
+    this.execQuery('CREATE TABLE IF NOT EXISTS `message` (' +
+    '`id` varchar(64) NOT NULL,' +
+    '`conversation_id` varchar(64) NOT NULL,' +
+    '`created_by` varchar(64) NOT NULL,' +
+    '`created_at` int(11) NOT NULL,' +
+    '`meta_type` varchar(200) NOT NULL,' +
+    '`text` varchar(1000) NOT NULL,' +
+    'PRIMARY KEY (`id`));');
   }
 
   setValueForKey(key, value) {
@@ -106,20 +112,47 @@ class Storage {
   }
 
   newConversation(params, cb) {
-    console.log('newConversation', params);
+    console.log('Storage:newConversation', params);
     var query = 'INSERT INTO `conversation` ' +
     '(`id`, `members`, `display_name`, `created_by`, `last_message`, `last_message_ts`) VALUES ' +
     '("' + params._id +'", "' + params.members.join(',') + '", "' +
     params.displayName + '", "' + params.created_by + '","", 0)';
     this.execQuery(query, (results) => {
       cb && cb();
-    })
+    });
+  }
+  /**
+   * @param params {_id: ObjectId, created_by: objectId, created_at: timestamp, text: string, conversation_id: objectId, recipients: array<objectId>, meta: object}
+   */
+  newMessage(params, cb) {
+    var createdAtTS = Date.parse(params.created_at);
+    var query = 'INSERT INTO `message` ' +
+      '(`id`, `conversation_id`, `created_at`, `created_by`, `meta_type`, `text`) VALUES ' +
+      '("' + params._id +'", "' + params.conversation_id + '", "' +
+      createdAtTS + '", "' + params.created_by + '", "' + params.meta.type + '", "' + params.text + '")';
+    this.execQuery(query, (results) => {
+      cb && cb();
+    });
   }
 
+  /**
+   * @param params {conversation_id: {objectId}};
+   * return latest chats ordered by created_at, DESC
+   */
+  getMessages(params, cb) {
+    this.execQuery('SELECT * FROM `message` WHERE `conversation_id`="' + params.conversationId +
+      '" ORDER BY `created_at` DESC LIMIT 100', (results) => {
+      cb && cb(results);
+    });
+  }
+
+  /**
+   *
+   */
   getConversations(cb) {
     this.execQuery('SELECT * FROM `conversation`', (results) => {
       cb && cb(results);
-    })
+    });
   }
 
   updateConversation() {
@@ -133,10 +166,10 @@ class Storage {
   execQuery(query, cb) {
     this.db.transaction((tx) => {
       tx.executeSql(query, [], (tx, results) => {
-        console.log('Query completed', query);
+        console.log('Storage:Query completed', query);
         cb && cb(results);
       }, (err) => {
-        console.log('Query error', err, query);
+        console.log('Storage:Query error', err, query);
       });
     });
   }
