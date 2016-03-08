@@ -35,6 +35,7 @@ class SettingsView extends Component {
       title: 'Back',
       handler: () => {
         that.props.navigator.pop();
+        that.props.onBack && that.props.onBack();
       }
     };
     return (

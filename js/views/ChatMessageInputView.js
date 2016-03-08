@@ -24,7 +24,7 @@ class ChatMessageInputView extends Component {
   render() {
     var TouchableElement = TouchableHighlight; // for ios
     return (
-      <View style={[styleCommon.background, styles.container]}>
+      <View style={[this.props.style, styles.container]}>
         <TextInput
           style={[styleCommon.input, styles.input]}
           onChangeText={(message) => this.setState({message})}
@@ -32,9 +32,9 @@ class ChatMessageInputView extends Component {
         <TouchableElement
           onPress={this.sendMessage.bind(this)}
           activeOpacity={0.8}
-          underlayColor={Config.styles.colorGreen}
-          style={[styleCommon.touchableLink]}>
-          <Text style={styleCommon.buttonMedium}>
+          underlayColor={Config.styles.colorWhite}
+          style={[styleCommon.touchableButton, styles.touchableSend]}>
+          <Text style={[styleCommon.buttonSmall, styles.buttonSend]}>
             {LocalizedText.text('send')}
           </Text>
         </TouchableElement>
@@ -47,7 +47,35 @@ var styleCommon = require("./../StylesCommon");
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ffffff'
+    flex: 1,
+    justifyContent: 'flex-start',
+    flexDirection: 'row',
+  },
+  input: {
+    marginTop: 15,
+    marginLeft: 5,
+    marginRight:5,
+    paddingLeft: 5,
+    paddingRight: 5,
+    width: 430,
+    height: 20,
+    flex: 1,
+    justifyContent: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  touchableSend: {
+    marginTop: 15,
+    marginRight: 5,
+    width: 50,
+    height: 20,
+    flex: 1,
+    justifyContent: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  buttonSend: {
+    width: 50
   }
 });
 

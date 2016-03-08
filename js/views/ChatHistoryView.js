@@ -22,19 +22,75 @@ class ChatHistoryView extends Component {
     });
   }
 
+  componentDidUpdate() {
+    // Auto scroll to bottom
+    if("listHeight" in this.state &&
+      "footerY" in this.state &&
+      this.state.footerY > this.state.listHeight)
+    {
+      var scrollDistance = this.state.listHeight - this.state.footerY;
+      this.refs.list.getScrollResponder().scrollTo({
+        x: 0,
+        y: -scrollDistance,
+        animated: false
+      });
+    }
+  }
+
+  onListViewLayout(event) {
+    var layout = event.nativeEvent.layout;
+
+    this.setState({
+      listHeight : layout.height
+    });
+    //console.log('ChatHistoryView:onListViewLayout');
+  }
+
+  renderFooter() {
+    return (<View onLayout={(event)=>{
+      this.setState({
+        footerY : event.nativeEvent.layout.y
+      });
+    }}></View>);
+    //console.log('ChatHistoryView:renderFooter');
+  }
+
   renderRow(message) {
     return (
       <MessageView ts={message.created_at} text={message.text} fromUserId={message.created_by} />
     );
   }
 
+  renderSeparator(
+    sectionID: number | string,
+    rowID: number | string,
+    adjacentRowHighlighted: boolean) {
+    return (
+      <View key={'SEP_' + sectionID + '_' + rowID}  style={styles.rowSeparator}/>
+    );
+  }
+
+  onEndReached() {
+    console.log('ChatHistoryView:onEndReached');
+  }
+
   render() {
+
     var TouchableElement = TouchableHighlight; // for ios
     return (
-      <View style={[styleCommon.background, styles.container]}>
+      <View style={this.props.style}>
         <ListView
+        ref="list"
         dataSource={this.state.dataSource}
         renderRow={this.renderRow}
+        renderSeparator={this.renderSeparator}
+        onEndReached={this.onEndReached}
+        onLayout={this.onListViewLayout.bind(this)}
+        renderFooter={this.renderFooter.bind(this)}
+        automaticallyAdjustContentInsets={false}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps={true}
+        showsVerticalScrollIndicator={false}
         />
       </View>
     );
@@ -44,9 +100,11 @@ class ChatHistoryView extends Component {
 var styleCommon = require("./../StylesCommon");
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#ffffff',
-  }
+  rowSeparator: {
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    height: 1,
+    marginLeft: 4,
+  },
 });
 
 AppRegistry.registerComponent('ChatHistoryView', () => ChatHistoryView);

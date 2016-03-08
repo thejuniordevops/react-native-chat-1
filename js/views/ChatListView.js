@@ -31,6 +31,7 @@ class ChatListView extends Component {
 
   componentDidMount() {
     this.updateDataSource();
+    DataService.getNewMessages();
   }
 
   updateDataSource() {
@@ -40,7 +41,6 @@ class ChatListView extends Component {
       for (var i = 0; i < results.rows.length; i++) {
         newListData.push(results.rows.item(i));
       }
-      console.log('ChatListView: dataSource', newListData);
       that.setState({dataSource: that.state.dataSource.cloneWithRows(newListData)});
     });
   }
@@ -54,10 +54,14 @@ class ChatListView extends Component {
     console.log('selectConversation', conversation);
     this.props.navigator.push({
       name: 'ChatDetail',
-      conversation: conversation
+      conversation: conversation,
+      onBack: this.back.bind(this)
     });
-    // Temporary for testing
-    DataService.getNewMessages();
+  }
+
+  back() {
+    console.log('ChatListView:back:updateDataSource');
+    this.updateDataSource();
   }
 
   renderRow(
@@ -85,7 +89,8 @@ class ChatListView extends Component {
       title: 'New',
       handler: () => {
         that.props.navigator.push({
-          name: 'NewChat'
+          name: 'NewChat',
+          onBack: that.back.bind(that)
         });
       }
     };
@@ -95,7 +100,6 @@ class ChatListView extends Component {
         that.props.navigator.push({
           name: 'Settings'
         });
-        that.updateDataSource();
       }
     };
     var TouchableElement = TouchableHighlight; // for ios

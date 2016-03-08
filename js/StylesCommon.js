@@ -19,11 +19,11 @@ const styles = StyleSheet.create({
     color: Config.styles.colorWhite
   },
   buttonMedium: {
+    fontSize: 14,
     flex: 1,
     justifyContent: 'center',
     flexDirection: 'row',
     alignItems: 'center',
-    fontSize: 14,
     textAlign: 'center',
     width: 200,
     borderRadius: 5,
@@ -35,6 +35,18 @@ const styles = StyleSheet.create({
   },
   buttonSmall: {
     fontSize: 12,
+    flex: 1,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    textAlign: 'center',
+    width: 100,
+    borderRadius: 4,
+    backgroundColor: Config.styles.colorLightGrey,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 10,
+    paddingRight: 10
   },
   buttonLarge: {
     fontSize: 16,

@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('react-native');
-var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, ListView, View} = React;
+var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, View} = React;
 var DataService = require('../classes/DataService');
 var ChatHistoryView = require('./ChatHistoryView');
 var ChatMessageInputView = require('./ChatMessageInputView');
@@ -31,7 +31,7 @@ class ChatDetailView extends Component {
       for (var i = 0; i < results.rows.length; i++) {
         messages.unshift(results.rows.item(i));
       }
-      console.log('ChatDetailView:getMessages rows.length=' + results.rows.length, messages);
+      console.log('ChatDetailView:getMessages rows.length=' + results.rows.length);
       that.setState({
         messages: messages
       });
@@ -59,6 +59,7 @@ class ChatDetailView extends Component {
       title: 'back',
       handler: () => {
         that.props.navigator.pop();
+        that.props.onBack && that.props.onBack();
       }
     };
 
@@ -66,11 +67,13 @@ class ChatDetailView extends Component {
     return (
       <View style={[styleCommon.background]}>
         <NavigationBar
-        title={{title: this.props.conversation.id}}
-        leftButton={leftButtonConfig}
+          title={{title: this.props.conversation.id}}
+          leftButton={leftButtonConfig}
         />
-        <ChatHistoryView messages={this.state.messages} />
-        <ChatMessageInputView onSend={this.send.bind(this)} />
+        <View style={styles.container}>
+          <ChatHistoryView style={styles.history} messages={this.state.messages} />
+          <ChatMessageInputView style={styles.inputView} onSend={this.send.bind(this)} />
+        </View>
       </View>
     );
   }
@@ -79,6 +82,17 @@ class ChatDetailView extends Component {
 var styleCommon = require("./../StylesCommon");
 
 const styles = StyleSheet.create({
+  container: {
+
+  },
+  history: {
+    backgroundColor: '#ffffff',
+    height: 450,
+  },
+  inputView: {
+    height: 45,
+    backgroundColor: '#ffffff'
+  }
 });
 
 AppRegistry.registerComponent('ChatDetailView', () => ChatDetailView);

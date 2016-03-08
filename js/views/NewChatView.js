@@ -48,6 +48,7 @@ class NewChatView extends Component {
       title: 'back',
       handler: () => {
         that.props.navigator.pop();
+        that.props.onBack && that.props.onBack();
       }
     };
     var TouchableElement = TouchableHighlight; // for ios
@@ -84,9 +85,6 @@ var styleCommon = require("./../StylesCommon");
 const styles = StyleSheet.create({
   container: {
     flex: 1
-  },
-  input: {
-    marginTop: 40
   },
   button: {
     flex: 0,
