@@ -14,6 +14,7 @@ class LoadingView extends Component {
           name: 'Signup'
         });
       } else {
+        // TODO: Fetch the conversations from server
         this.props.navigator.push({
           name: 'ChatList'
         });

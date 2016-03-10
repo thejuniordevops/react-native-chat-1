@@ -17,7 +17,6 @@ class ChatSummaryCellView extends Component {
           onShowUnderlay={this.props.onHighlight}
           onHideUnderlay={this.props.onUnhighlight}>
           <View style={styles.row}>
-
             <View style={styles.textContainer}>
               <Text style={styles.displayName} numberOfLines={1}>
                 {this.props.displayName}

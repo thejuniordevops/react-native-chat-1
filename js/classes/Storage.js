@@ -47,18 +47,21 @@ class Storage {
   nukeDB() {
     this.execQuery('DROP TABLE `user_defaults`');
     this.execQuery('DROP TABLE `conversation`');
+    this.execQuery('DROP TABLE `user`');
+    this.execQuery('DROP TABLE `message`');
   }
 
   init() {
     this.createUserDefaultsTable();
     this.createConversationTable();
     this.createMessageTable();
+    this.createUserTable();
   }
 
   createUserDefaultsTable() {
     this.execQuery('CREATE TABLE IF NOT EXISTS `user_defaults` ' +
       '(`key` varchar(50) NOT NULL,`value` varchar(500) NOT NULL,' +
-      'PRIMARY KEY (`key`));');
+      'PRIMARY KEY (`key`))');
   }
 
   createConversationTable() {
@@ -69,7 +72,7 @@ class Storage {
       '`created_by` varchar(64) NOT NULL,' +
       '`last_message` varchar(500) NOT NULL,' +
       '`last_message_ts` int(11) NOT NULL,' +
-      'PRIMARY KEY (`id`));');
+      'PRIMARY KEY (`id`))');
   }
 
   createMessageTable() {
@@ -80,7 +83,15 @@ class Storage {
     '`created_at` int(11) NOT NULL,' +
     '`meta_type` varchar(200) NOT NULL,' +
     '`text` varchar(1000) NOT NULL,' +
-    'PRIMARY KEY (`id`));');
+    'PRIMARY KEY (`id`))');
+  }
+  
+  createUserTable() {
+     this.execQuery('CREATE TABLE IF NOT EXISTS `user` (' +
+    '`id` varchar(64) NOT NULL,' +
+    '`username` varchar(100) NOT NULL,' +
+    '`display_name` varchar(100) NOT NULL,' +
+    'PRIMARY KEY (`id`))');
   }
 
   setValueForKey(key, value) {
@@ -104,10 +115,31 @@ class Storage {
       }
     });
   }
+  
+  getUsersInfo(params, cb) {
+    if (params.userIds && params.userIds.length > 0) {
+      var query = 'SELECT * FROM `user` WHERE `id` IN ("' + params.userIds.join('","') + '")';
+      this.execQuery(query, (results) => {
+        cb && cb(results);
+      });
+    }
+  }
+
+  /**
+   * Save a single user info into db
+   */
+  saveUserInfo(params, cb) {
+    if (params._id) {
+      params.displayName = params.displayName || '';
+      this.execQuery('INSERT OR REPLACE INTO `user` (`id`,`username`, `display_name`) VALUES ("' +
+        params._id + '","' + params.username + '","'  + params.displayName + '")');
+    }
+  }
 
   getMyInfo() {
     return {
-      username: this.cached['username']
+      username: this.cached.username,
+      user_id: this.cached.user_id
     };
   }
 
@@ -147,7 +179,7 @@ class Storage {
   }
 
   /**
-   *
+   * get all conversations
    */
   getConversations(cb) {
     this.execQuery('SELECT * FROM `conversation`', (results) => {
@@ -156,11 +188,7 @@ class Storage {
   }
 
   updateConversation() {
-
-  }
-
-  getChatList() {
-
+    
   }
 
   execQuery(query, cb) {

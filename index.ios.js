@@ -39,6 +39,7 @@ class reactNativeChat extends Component {
     this.setState({memoryWarnings: this.state.memoryWarnings + 1});
     console.log('reactNativeChat:memoryWarning', this.state.memoryWarnings);
   }
+
   _handleAppStateChange(appState) {
     this.setState({
       appState
@@ -76,7 +77,7 @@ class reactNativeChat extends Component {
       case 'ChatDetail':
         return (<ChatDetailView navigator={navigator} conversation={route.conversation} onBack={route.onBack} />);
       case 'Settings':
-        return (<SettingsView navigator={navigator} />);
+        return (<SettingsView navigator={navigator} onBack={route.onBack} />);
     }
   }
 }

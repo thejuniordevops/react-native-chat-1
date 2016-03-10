@@ -17,7 +17,8 @@ class ChatListView extends Component {
       rowHasChanged: (r1, r2) => {r1 != r2}
     });
     this.state = {
-      dataSource: ds
+      dataSource: ds,
+      users: {}
     };
   }
 
@@ -30,26 +31,87 @@ class ChatListView extends Component {
   }
 
   componentDidMount() {
-    this.updateDataSource();
+    // fetch all users from server
     DataService.getNewMessages();
+    this.updateDataSource({fromServer: true});
   }
 
-  updateDataSource() {
+  /**
+   * @param params {fromServer: boolean}
+   */
+  updateDataSource(params) {
     var that = this;
+    params = params || {};
     Storage.getConversations((results) => {
       var newListData = [];
       for (var i = 0; i < results.rows.length; i++) {
         newListData.push(results.rows.item(i));
       }
+      console.log('ChatListView:updateDataSource:getConversations length=', newListData);
+      if (params.fromServer) {
+        that.updateUsersFromDataService(DataService.getUserIdsFromConversations(newListData));
+      } else {
+        that.updateUsersFromStorage(DataService.getUserIdsFromConversations(newListData));
+      }
       that.setState({dataSource: that.state.dataSource.cloneWithRows(newListData)});
     });
   }
 
-  onNewConversation() {
-    // TODO: listen to an event new converation created, then update the list
-    this.updateDataSource()
+  /**
+   * Fetch users data from server
+   */
+  updateUsersFromDataService(userIds) {
+    // fetch users data
+    var that = this;
+    DataService.getUsers({userIds: userIds}, (users) => {
+      var usersObj = {};
+      for (var j = 0; j < users.length; j++) {
+        usersObj[users[j]._id] = users[j];
+      }
+      that.setState({users: usersObj});
+    });
   }
 
+  /**
+   * Fetch users data from storage
+   */
+  updateUsersFromStorage(userIds) {
+    // TODO: Determine if we really need to update this
+  }
+
+  /**
+   * if the conversation display_name is set, use it
+   * Otherwise concat the users display names
+   */
+  getConversationDisplayName(conversation) {
+    if (conversation.display_name) {
+      return conversation.display_name;
+    } else {
+      var displayName = [];
+      var that = this;
+      var myInfo = Storage.getMyInfo();
+      var myId = myInfo.user_id;
+      console.log('myId', myId);
+      conversation.members.split(',').forEach((userId) => {
+        if(myId != userId && that.state.users[userId]) {
+          displayName.push(that.state.users[userId].display_name || that.state.users[userId].username);
+        }
+      });
+      return displayName.join(', ');
+    }
+  }
+
+  /**
+   * new conversation is created
+   */
+  onNewConversation() {
+    // TODO: listen to an event new converation created, then update the list
+    this.updateDataSource({fromServer: true});
+  }
+
+  /**
+   * Select a conversation and jump into details
+   */
   selectConversation(conversation) {
     console.log('selectConversation', conversation);
     this.props.navigator.push({
@@ -61,7 +123,7 @@ class ChatListView extends Component {
 
   back() {
     console.log('ChatListView:back:updateDataSource');
-    this.updateDataSource();
+    this.updateDataSource({fromServer: false});
   }
 
   renderRow(
@@ -74,7 +136,7 @@ class ChatListView extends Component {
       <ChatSummaryCellView
         onSelect={() => this.selectConversation(conversation)}
         id={conversation.id}
-        displayName={conversation.display_name}
+        displayName={this.getConversationDisplayName(conversation)}
         lastMessage={conversation.last_message}
         lastMessageTS={conversation.last_message_ts}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}

@@ -128,6 +128,7 @@ class DataService {
     if (res && !res.err) {
       console.log('DataService:post_handshake', res.response);
       Storage.setValueForKey('username', res.response.user.username);
+      Storage.setValueForKey('user_id', res.response.user._id);
       Storage.setValueForKey('token', res.response.token);
     }
     cb && cb(res);
@@ -167,14 +168,42 @@ class DataService {
       action: 'usernameLookUp',
       data: {username: params.username}
     }, (res) => {
+      // TODO: save user info into db
       cb && cb(res);
     });
+  }
+
+  /**
+   * @param params {userIds: array}
+   */
+  getUsers(params, cb) {
+    console.log('DataService:getUsers userIds', params.userIds);
+    if (params.userIds && params.userIds.length > 0) {
+      // save these user info
+      this.doAction({
+        action: 'getUsers',
+        data: {
+          user_ids: params.userIds
+        }
+      }, (res) => {
+        if (res && !res.err) {
+          //save this into Storage
+          console.log('DataService:loadUserInfo response.data', res.response.data);
+          res.response.data.forEach((user) => {
+            Storage.saveUserInfo(user);
+          });
+          cb && cb(res.response.data);
+        }
+      });
+    }
+
   }
 
   /**
    *  @param params {userIds: [string]}
    */
   newConversation(params, cb) {
+    var that = this;
     this.doAction({
       action: 'newConversation',
       data: {
@@ -184,6 +213,8 @@ class DataService {
       if (res && !res.err) {
         //save this into Storage
         Storage.newConversation(res.response.data);
+        // fetch users info
+        that.getUsers({userIds: res.response.data.members});
         cb && cb(res.response.data);
       }
     });
@@ -193,6 +224,7 @@ class DataService {
    * Get conversation info from server
    */
   getConversations(params, cb) {
+    var that = this;
     this.doAction({
       action: 'getConversations',
       data: {
@@ -205,9 +237,23 @@ class DataService {
         res.response.data.forEach((conversation) => {
           Storage.newConversation(conversation);
         });
+        // get all users info
+        that.getUsers({
+          userIds: that.getUserIdsFromConversations(res.response.data)
+        });
         cb && cb(res.response.data);
       }
     });
+  }
+
+  getUserIdsFromConversations(conversations) {
+    var users = {};
+    conversations.forEach((conversation) => {
+      conversation.members.split(',').forEach((userId) => {
+        users[userId] = 1;
+      });
+    });
+    return Object.keys(users);
   }
 
   sendTextMessage(params, cb) {
