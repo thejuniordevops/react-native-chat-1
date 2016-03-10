@@ -16,7 +16,8 @@ class ChatDetailView extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      messages: []
+      messages: [],
+      users: {}
     };
   }
 
@@ -27,13 +28,12 @@ class ChatDetailView extends Component {
   getMessages() {
     var that = this;
     Storage.getMessages({conversationId: this.props.conversation.id}, (results) => {
-      var messages = [];
-      for (var i = 0; i < results.rows.length; i++) {
-        messages.unshift(results.rows.item(i));
-      }
-      console.log('ChatDetailView:getMessages rows.length=' + results.rows.length);
-      that.setState({
-        messages: messages
+      var messages = results.reverse();
+      Storage.getUsersInfoWithIdAsKeys({userIds: that.props.conversation.members.split(',')}, (users) => {
+        that.setState({
+          messages: messages,
+          users: users
+        });
       });
     });
 
@@ -67,11 +67,11 @@ class ChatDetailView extends Component {
     return (
       <View style={[styleCommon.background]}>
         <NavigationBar
-          title={{title: this.props.conversation.id}}
+          title={{title: this.props.conversation.display_name}}
           leftButton={leftButtonConfig}
         />
         <View style={styles.container}>
-          <ChatHistoryView style={styles.history} messages={this.state.messages} />
+          <ChatHistoryView style={styles.history} messages={this.state.messages} users={this.state.users} />
           <ChatMessageInputView style={styles.inputView} onSend={this.send.bind(this)} />
         </View>
       </View>

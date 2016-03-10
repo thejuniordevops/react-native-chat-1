@@ -42,11 +42,7 @@ class ChatListView extends Component {
   updateDataSource(params) {
     var that = this;
     params = params || {};
-    Storage.getConversations((results) => {
-      var newListData = [];
-      for (var i = 0; i < results.rows.length; i++) {
-        newListData.push(results.rows.item(i));
-      }
+    Storage.getConversations((newListData) => {
       console.log('ChatListView:updateDataSource:getConversations length=', newListData);
       if (params.fromServer) {
         that.updateUsersFromDataService(DataService.getUserIdsFromConversations(newListData));
@@ -76,12 +72,16 @@ class ChatListView extends Component {
    * Fetch users data from storage
    */
   updateUsersFromStorage(userIds) {
-    // TODO: Determine if we really need to update this
+    // nothing to do here
   }
 
   /**
+   * Lazy processing display name.
+   * It will be saved into conversations data once done
    * if the conversation display_name is set, use it
    * Otherwise concat the users display names
+   * TODO: probably this should be done in DataService not here.
+   * TODO: However this isn't very ideal. Because if server push a change into client. client won't update display name until it get's back into this screen
    */
   getConversationDisplayName(conversation) {
     if (conversation.display_name) {
@@ -97,7 +97,8 @@ class ChatListView extends Component {
           displayName.push(that.state.users[userId].display_name || that.state.users[userId].username);
         }
       });
-      return displayName.join(', ');
+      conversation.display_name = displayName.join(', ');
+      return conversation.display_name;
     }
   }
 

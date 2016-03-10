@@ -20,7 +20,7 @@ class MessageView extends Component {
     return (
       <View style={[styles.container]}>
         <Text style={styles.messageText}>{this.props.text}</Text>
-        <Text style={styles.username}>{this.props.fromUserId}</Text>
+        <Text style={styles.username}>{this.props.fromUserDisplayName}</Text>
         <Text style={styles.tsText}>{date.toString()}</Text>
       </View>
     );

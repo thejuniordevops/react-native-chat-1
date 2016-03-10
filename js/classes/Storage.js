@@ -106,8 +106,8 @@ class Storage {
     }
     var that = this;
     this.execQuery('SELECT value FROM `user_defaults` WHERE `key`="' + key + '"', (results) => {
-      if (results.rows.length > 0) {
-        var ret = results.rows.item(0);
+      if (results.length > 0) {
+        var ret = results[0];
         that.cached[key] = ret.value;
         cb && cb(ret.value);
       } else {
@@ -115,14 +115,30 @@ class Storage {
       }
     });
   }
-  
+
+  /**
+   * return users array
+   */
   getUsersInfo(params, cb) {
     if (params.userIds && params.userIds.length > 0) {
       var query = 'SELECT * FROM `user` WHERE `id` IN ("' + params.userIds.join('","') + '")';
-      this.execQuery(query, (results) => {
-        cb && cb(results);
+      this.execQuery(query, (users) => {
+        cb && cb(users);
       });
     }
+  }
+
+  /**
+   * returns user object with id as the key
+   */
+  getUsersInfoWithIdAsKeys(params, cb) {
+    this.getUsersInfo(params, (users)  => {
+      var userObjWithIdAsKeys = {};
+      users.forEach((user) => {
+        userObjWithIdAsKeys[user.id] = user;
+      });
+      cb && cb(userObjWithIdAsKeys);
+    });
   }
 
   /**
@@ -192,14 +208,23 @@ class Storage {
   }
 
   execQuery(query, cb) {
+    var that = this;
     this.db.transaction((tx) => {
       tx.executeSql(query, [], (tx, results) => {
         console.log('Storage:Query completed', query);
-        cb && cb(results);
+        cb && cb(that.toArray(results));
       }, (err) => {
         console.log('Storage:Query error', err, query);
       });
     });
+  }
+
+  toArray(results) {
+    var ret = [];
+    for (var i = 0; i < results.rows.length; i++) {
+      ret.push(results.rows.item(i));
+    }
+    return ret;
   }
 }
 

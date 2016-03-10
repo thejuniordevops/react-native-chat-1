@@ -55,9 +55,17 @@ class ChatHistoryView extends Component {
     //console.log('ChatHistoryView:renderFooter');
   }
 
+  getDisplayName(userId) {
+    console.log('this.props.users', this.props.users);
+    if (this.props.users[userId]) {
+      return this.props.users[userId].display_name || this.props.users[userId].username;
+    }
+    return 'unknown user';
+  }
+
   renderRow(message) {
     return (
-      <MessageView ts={message.created_at} text={message.text} fromUserId={message.created_by} />
+      <MessageView ts={message.created_at} text={message.text} fromUserDisplayName={this.getDisplayName(message.created_by)} />
     );
   }
 
@@ -82,7 +90,7 @@ class ChatHistoryView extends Component {
         <ListView
         ref="list"
         dataSource={this.state.dataSource}
-        renderRow={this.renderRow}
+        renderRow={this.renderRow.bind(this)}
         renderSeparator={this.renderSeparator}
         onEndReached={this.onEndReached}
         onLayout={this.onListViewLayout.bind(this)}
