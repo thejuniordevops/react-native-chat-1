@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start"
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest"
   },
   "dependencies": {
     "react-native": "^0.21.0",
@@ -14,6 +15,17 @@
     "exec": "^0.2.1",
     "gulp": "^3.9.1",
     "gulp-esformatter": "^6.0.0",
+    "jest-babel-preprocessor": "^0.3.0",
+    "jest-cli": "^0.9.1",
     "sync-exec": "^0.6.2"
+  },
+  "jest": {
+    "scriptPreprocessor": "<rootDir>/node_modules/jest-babel-preprocessor/preprocessor.js",
+    "unmockedModulePathPatterns": [
+      "/node_modules/"
+    ],
+    "testPathDirs": [
+      "js/"
+    ]
   }
 }

@@ -14,14 +14,20 @@ class MessageView extends Component {
     }
   }
 
+  toDate(ts) {
+    var date = new Date(ts);
+    return date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
+  }
+
   render() {
-    //var TouchableElement = TouchableHighlight; // for ios
-    var date = new Date(this.props.ts);
     return (
       <View style={[styles.container]}>
-        <Text style={styles.messageText}>{this.props.text}</Text>
+      <View style={styles.infoView}>
         <Text style={styles.username}>{this.props.fromUserDisplayName}</Text>
-        <Text style={styles.tsText}>{date.toString()}</Text>
+        <Text style={styles.tsText}>@{this.toDate(this.props.ts)}</Text>
+      </View>
+
+      <Text style={styles.messageText}>{this.props.text}</Text>
       </View>
     );
   }
@@ -33,16 +39,27 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Config.styles.colorWhite,
   },
+  infoView: {
+    flex: 1,
+    flexDirection: 'row',
+    marginLeft: 10,
+  },
   username: {
-
+    color: '#0095ff'
   },
   messageText: {
+    backgroundColor: Config.styles.colorLightGrey,
+    width: 250,
     color: '#333333',
-    fontSize: 14
+    fontSize: 14,
+    marginLeft: 40,
+    padding: 10,
+    borderRadius: 5
   },
   tsText: {
     color: '#888888',
-    fontSize: 12
+    fontSize: 12,
+    marginLeft:5
   }
 });
 

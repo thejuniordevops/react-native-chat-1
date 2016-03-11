@@ -6,6 +6,8 @@ var DataService = require('../classes/DataService');
 var Config = require('../Config');
 var LocalizedText = require("../classes/LocalizedText");
 var NavigationBar = require('react-native-navbar');
+var ConversationManager = require('../classes/ConversationManager');
+var UserManager = require('../classes/UserManager');
 var Storage = require('../classes/Storage');
 
 class NewChatView extends Component {
@@ -29,15 +31,15 @@ class NewChatView extends Component {
         //TODO: show some error messages (invalid username)
         console.log('NewChatView:start chat error');
       } else {
-        DataService.newConversation({userIds: [res.response.data._id]}, (conversation) => {
-          console.log("newchatView: conversation", conversation);
-          conversation.id = conversation._id; //convert mongo _id to local Storage like format
+        var user = res.response.data;
+        ConversationManager.newConversation({userIds: [user.id]}, (data) => {
+          console.log("newchatView: conversation", data.conversation);
           that.props.navigator.replace({
             name: 'ChatDetail',
-            conversation: conversation
+            conversation: data.conversation
           });
         });
-        console.log('NewChatView:start chat with user', res.response.data);
+        console.log('NewChatView:start chat with user', user);
       }
     });
   }

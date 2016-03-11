@@ -16,26 +16,7 @@ class DataService {
   }
 
   connect(cb) {
-    this.ws = new WebSocket(Config.serverURL);
-    var that = this;
-    this.ws.onopen = () => {
-      // connection opened
-      console.log("DataService:connection opened");
-      cb && cb();
-    };
-
-    this.ws.onmessage = (e) => {
-      // a message was received
-      var r = this.parseRes(e);
-      console.log("DataService:onmessage received", r);
-      emitter.emit(r.action, r.data);
-    };
-
-    this.ws.close = (e) => {
-      // a message was received
-      console.log("DataService:connection closed");
-      that.ws = null;
-    };
+    cb && cb();
   }
 
   /**
@@ -64,11 +45,7 @@ class DataService {
    * @param skipHandshake {boolean} (optional)
    */
   doAction (params, cb, skipHanshake) {
-    var that = this;
-    emitter.once(params.action, cb);
-    this.autoConnect(() => {
-      that.ws.send(JSON.stringify(params));
-    }, skipHanshake);
+    cb && cb(params.response);
   }
 
   register(params, cb) {
@@ -177,6 +154,7 @@ class DataService {
    * @param params {userIds: array}
    */
   getUsers(params, cb) {
+    console.log('DataService:getUsers userIds', params.userIds);
     if (params.userIds && params.userIds.length > 0) {
       // save these user info
       this.doAction({
@@ -186,10 +164,12 @@ class DataService {
         }
       }, (res) => {
         if (res && !res.err) {
-          console.log('DataService:getUsers userIds', params.userIds, res.response.data);
+          //save this into Storage
+          console.log('DataService:loadUserInfo response.data', res.response.data);
+          res.response.data.forEach((user) => {
+            Storage.saveUserInfo(user);
+          });
           cb && cb(res.response.data);
-        } else {
-          console.log('DataService:getUsers error', res);
         }
       });
     }
@@ -198,7 +178,6 @@ class DataService {
 
   /**
    *  @param params {userIds: [string]}
-   *  cb (object)
    */
   newConversation(params, cb) {
     var that = this;
@@ -209,6 +188,10 @@ class DataService {
       }
     }, (res) => {
       if (res && !res.err) {
+        //save this into Storage
+        Storage.newConversation(res.response.data);
+        // fetch users info
+        that.getUsers({userIds: res.response.data.members});
         cb && cb(res.response.data);
       }
     });
@@ -226,6 +209,15 @@ class DataService {
       }
     }, (res) => {
       if (res && !res.err && res.response.data.length > 0) {
+        //save this into Storage
+        console.log('getConversations:res.response.data', res.response.data);
+        res.response.data.forEach((conversation) => {
+          Storage.newConversation(conversation);
+        });
+        // get all users info
+        that.getUsers({
+          userIds: that.getUserIdsFromConversations(res.response.data)
+        });
         cb && cb(res.response.data);
       }
     });
@@ -234,7 +226,7 @@ class DataService {
   getUserIdsFromConversations(conversations) {
     var users = {};
     conversations.forEach((conversation) => {
-      conversation.members.forEach((userId) => {
+      conversation.members.split(',').forEach((userId) => {
         users[userId] = 1;
       });
     });
@@ -261,7 +253,7 @@ class DataService {
          meta: { type: 'text' } }
          */
         // TODO: store it into db
-
+        Storage.newMessage(res.response.data);
         cb && cb(res.response.data);
       }
     });
@@ -275,7 +267,21 @@ class DataService {
       data: {}
     }, (res) => {
       // res.data is an array containing Message models
-      cb && cb(res.response.data);
+      // If ther are any new message, we will store them into db
+      if (res.response.data.length > 0) {
+        var messageIds = res.response.data.map((n) => {return n.id});
+        // Acknowledge the message so that server can delete this notif
+        that.acknowledgeNewMessages({message_ids: messageIds});
+        // store the message
+        res.response.data.forEach((message) => {
+          Storage.newMessage(message);
+        });
+        // Next fetch the conversation info. Because the conversation data could be updated on the server side
+        var conversationIds = res.response.data.map((n) => {return n.conversation_id});
+        that.getConversations({conversationIds: conversationIds});
+        cb && cb(res.data);
+      }
+
     });
   }
 

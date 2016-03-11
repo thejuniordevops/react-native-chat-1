@@ -22,13 +22,25 @@ var SQLite = require('react-native-sqlite-storage');
  * Contacts
  * id(index):int, user_id:string (Mongodb id), username:string, display_name:string
  *
+ *
+ * Storage should only read and write to local db.
  */
-
+var _initialized = false;
+var _initCallbacks = [];
 class Storage {
 
   constructor () {
     this.db = SQLite.openDatabase('chat.db', '1.0', 'Chat Database', 200000, this.openCB.bind(this), this.errorCB.bind(this));
     this.cached = {};
+  }
+
+  whenInitialized(cb) {
+    if (!_initialized) {
+      console.log('whenInitialized push');
+      _initCallbacks.push(cb);
+    } else {
+      cb && cb();
+    }
   }
 
   errorCB(err) {
@@ -45,26 +57,40 @@ class Storage {
   }
 
   nukeDB() {
-    this.execQuery('DROP TABLE `user_defaults`');
-    this.execQuery('DROP TABLE `conversation`');
-    this.execQuery('DROP TABLE `user`');
-    this.execQuery('DROP TABLE `message`');
+    this.execQuery('DELETE FROM `user_defaults`');
+    this.execQuery('DELETE FROM `conversation`');
+    this.execQuery('DELETE FROM `user`');
+    this.execQuery('DELETE FROM `message`');
   }
 
   init() {
-    this.createUserDefaultsTable();
-    this.createConversationTable();
-    this.createMessageTable();
-    this.createUserTable();
+    var tablesCreated = 0;
+    var tableCreateFunctions = [
+      this.createUserDefaultsTable.bind(this),
+      this.createConversationTable.bind(this),
+      this.createMessageTable.bind(this),
+      this.createUserTable.bind(this)
+    ];
+    var callback = function () {
+      if (++tablesCreated >= tableCreateFunctions.length) {
+        console.log('call _initCallbacks', _initCallbacks);
+        _initCallbacks.forEach((func) => {
+          func && func();
+        });
+      }
+    };
+    tableCreateFunctions.forEach((func) => {
+      func(callback);
+    });
   }
 
-  createUserDefaultsTable() {
+  createUserDefaultsTable(cb) {
     this.execQuery('CREATE TABLE IF NOT EXISTS `user_defaults` ' +
       '(`key` varchar(50) NOT NULL,`value` varchar(500) NOT NULL,' +
-      'PRIMARY KEY (`key`))');
+      'PRIMARY KEY (`key`))', cb);
   }
 
-  createConversationTable() {
+  createConversationTable(cb) {
     this.execQuery('CREATE TABLE IF NOT EXISTS `conversation` ' +
       '(`id` varchar(64) NOT NULL,' +
       '`members` varchar(1000) NOT NULL,' +
@@ -72,10 +98,10 @@ class Storage {
       '`created_by` varchar(64) NOT NULL,' +
       '`last_message` varchar(500) NOT NULL,' +
       '`last_message_ts` int(11) NOT NULL,' +
-      'PRIMARY KEY (`id`))');
+      'PRIMARY KEY (`id`))', cb);
   }
 
-  createMessageTable() {
+  createMessageTable(cb) {
     this.execQuery('CREATE TABLE IF NOT EXISTS `message` (' +
     '`id` varchar(64) NOT NULL,' +
     '`conversation_id` varchar(64) NOT NULL,' +
@@ -83,15 +109,15 @@ class Storage {
     '`created_at` int(11) NOT NULL,' +
     '`meta_type` varchar(200) NOT NULL,' +
     '`text` varchar(1000) NOT NULL,' +
-    'PRIMARY KEY (`id`))');
+    'PRIMARY KEY (`id`))', cb);
   }
   
-  createUserTable() {
+  createUserTable(cb) {
      this.execQuery('CREATE TABLE IF NOT EXISTS `user` (' +
     '`id` varchar(64) NOT NULL,' +
     '`username` varchar(100) NOT NULL,' +
     '`display_name` varchar(100) NOT NULL,' +
-    'PRIMARY KEY (`id`))');
+    'PRIMARY KEY (`id`))', cb);
   }
 
   setValueForKey(key, value) {
@@ -116,39 +142,30 @@ class Storage {
     });
   }
 
+  getAllUsersInfo(params, cb) {
+    var query = 'SELECT * FROM `user`';
+    this.execQuery(query, cb);
+  }
+
   /**
    * return users array
+   * @param params {UserIds: array<id>}
    */
   getUsersInfo(params, cb) {
     if (params.userIds && params.userIds.length > 0) {
       var query = 'SELECT * FROM `user` WHERE `id` IN ("' + params.userIds.join('","') + '")';
-      this.execQuery(query, (users) => {
-        cb && cb(users);
-      });
+      this.execQuery(query, cb);
     }
-  }
-
-  /**
-   * returns user object with id as the key
-   */
-  getUsersInfoWithIdAsKeys(params, cb) {
-    this.getUsersInfo(params, (users)  => {
-      var userObjWithIdAsKeys = {};
-      users.forEach((user) => {
-        userObjWithIdAsKeys[user.id] = user;
-      });
-      cb && cb(userObjWithIdAsKeys);
-    });
   }
 
   /**
    * Save a single user info into db
    */
   saveUserInfo(params, cb) {
-    if (params._id) {
+    if (params.id) {
       params.displayName = params.displayName || '';
       this.execQuery('INSERT OR REPLACE INTO `user` (`id`,`username`, `display_name`) VALUES ("' +
-        params._id + '","' + params.username + '","'  + params.displayName + '")');
+        params.id + '","' + params.username + '","'  + params.displayName + '")');
     }
   }
 
@@ -159,28 +176,27 @@ class Storage {
     };
   }
 
+  /**
+   * Create or update new conversation
+   */
   newConversation(params, cb) {
     console.log('Storage:newConversation', params);
     var query = 'INSERT OR REPLACE INTO `conversation` ' +
     '(`id`, `members`, `display_name`, `created_by`, `last_message`, `last_message_ts`) VALUES ' +
-    '("' + params._id +'", "' + params.members.join(',') + '", "' +
+    '("' + params.id +'", "' + params.members.join(',') + '", "' +
     params.displayName + '", "' + params.created_by + '","", 0)';
-    this.execQuery(query, (results) => {
-      cb && cb();
-    });
+    this.execQuery(query, cb);
   }
   /**
-   * @param params {_id: ObjectId, created_by: objectId, created_at: timestamp, text: string, conversation_id: objectId, recipients: array<objectId>, meta: object}
+   * @param params {id: ObjectId, created_by: objectId, created_at: timestamp, text: string, conversation_id: objectId, recipients: array<objectId>, meta: object}
    */
   newMessage(params, cb) {
     var createdAtTS = Date.parse(params.created_at);
     var query = 'INSERT INTO `message` ' +
       '(`id`, `conversation_id`, `created_at`, `created_by`, `meta_type`, `text`) VALUES ' +
-      '("' + params._id +'", "' + params.conversation_id + '", "' +
+      '("' + params.id +'", "' + params.conversation_id + '", "' +
       createdAtTS + '", "' + params.created_by + '", "' + params.meta.type + '", "' + params.text + '")';
-    this.execQuery(query, (results) => {
-      cb && cb();
-    });
+    this.execQuery(query, cb);
   }
 
   /**
@@ -189,8 +205,8 @@ class Storage {
    */
   getMessages(params, cb) {
     this.execQuery('SELECT * FROM `message` WHERE `conversation_id`="' + params.conversationId +
-      '" ORDER BY `created_at` DESC LIMIT 100', (results) => {
-      cb && cb(results);
+      '" ORDER BY `created_at` DESC LIMIT 100', (messages) => {
+      cb && cb(messages.reverse()); //reverse order
     });
   }
 
@@ -198,13 +214,15 @@ class Storage {
    * get all conversations
    */
   getConversations(cb) {
-    this.execQuery('SELECT * FROM `conversation`', (results) => {
-      cb && cb(results);
-    });
+    this.execQuery('SELECT * FROM `conversation`', cb);
   }
 
+  /**
+   * The conversation info can be updated
+   * For example, adding member, changing conversation display_name
+   */
   updateConversation() {
-    
+
   }
 
   execQuery(query, cb) {
@@ -219,10 +237,15 @@ class Storage {
     });
   }
 
+  /**
+   * Convert sql results object to array
+   */
   toArray(results) {
     var ret = [];
-    for (var i = 0; i < results.rows.length; i++) {
-      ret.push(results.rows.item(i));
+    if (results.rows) {
+      for (var i = 0; i < results.rows.length; i++) {
+        ret.push(results.rows.item(i));
+      }
     }
     return ret;
   }

@@ -8,7 +8,8 @@ var ChatMessageInputView = require('./ChatMessageInputView');
 var Config = require('../Config');
 var LocalizedText = require("../classes/LocalizedText");
 var NavigationBar = require('react-native-navbar');
-var Storage = require('../classes/Storage');
+var ConversationManager = require('../classes/ConversationManager');
+var UserManager = require('../classes/UserManager');
 
 //props required: username
 class ChatDetailView extends Component {
@@ -22,21 +23,24 @@ class ChatDetailView extends Component {
   }
 
   componentDidMount() {
+    console.log('ChatDetailView:componentDidMount conversation', this.props.conversation);
     this.getMessages();
+    this.setState({
+      users: UserManager.getUsersInfoWithIdAsKeys({userIds: this.props.conversation.getMembers()})
+    }, () => {
+      console.log('this.state.users', this.state.users);
+    });
   }
 
   getMessages() {
     var that = this;
-    Storage.getMessages({conversationId: this.props.conversation.id}, (results) => {
-      var messages = results.reverse();
-      Storage.getUsersInfoWithIdAsKeys({userIds: that.props.conversation.members.split(',')}, (users) => {
-        that.setState({
-          messages: messages,
-          users: users
-        });
+    ConversationManager.getMessages({conversationId: this.props.conversation.get('id')}, (messages) => {
+      console.log('ChatDetailView:getMessages', messages);
+      console.log('ChatDetailView:getMessages users', that.state.users);
+      that.setState({
+        messages: messages
       });
     });
-
   }
 
   /**
@@ -44,11 +48,11 @@ class ChatDetailView extends Component {
    * @param params {text: {string}}
    */
   send(params) {
-    params.conversation_id = this.props.conversation.id;
+    params.conversation_id = this.props.conversation.get('id');
     console.log('ChatDetailView:send message', params);
     var that = this;
     // send message to server
-    DataService.sendTextMessage(params, (response) => {
+    ConversationManager.sendTextMessage(params, (response) => {
       that.getMessages();
     });
   }
@@ -62,12 +66,13 @@ class ChatDetailView extends Component {
         that.props.onBack && that.props.onBack();
       }
     };
+    var displayName = this.props.conversation.getDisplayName();
 
     var TouchableElement = TouchableHighlight; // for ios
     return (
       <View style={[styleCommon.background]}>
         <NavigationBar
-          title={{title: this.props.conversation.display_name}}
+          title={{title: displayName}}
           leftButton={leftButtonConfig}
         />
         <View style={styles.container}>

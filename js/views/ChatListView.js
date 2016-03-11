@@ -7,6 +7,8 @@ var Config = require('../Config');
 var LocalizedText = require("../classes/LocalizedText");
 var NavigationBar = require('react-native-navbar');
 var Storage = require('../classes/Storage');
+var ConversationManager = require('../classes/ConversationManager');
+var UserManager = require('../classes/UserManager');
 var ChatSummaryCellView = require('./ChatSummaryCellView');
 
 class ChatListView extends Component {
@@ -31,25 +33,30 @@ class ChatListView extends Component {
   }
 
   componentDidMount() {
-    // fetch all users from server
-    DataService.getNewMessages();
-    this.updateDataSource({fromServer: true});
+    //first fetch from local
+    this.updateDataSource();
+    this.fetchNewMessages();
+  }
+
+  fetchNewMessages() {
+    var that = this;
+    // fetch any new messages from server
+    ConversationManager.getNewMessages((res) => {
+      if (res.newMessages) {
+        that.updateDataSource();
+      }
+    });
   }
 
   /**
    * @param params {fromServer: boolean}
    */
-  updateDataSource(params) {
+  updateDataSource() {
     var that = this;
-    params = params || {};
-    Storage.getConversations((newListData) => {
-      console.log('ChatListView:updateDataSource:getConversations length=', newListData);
-      if (params.fromServer) {
-        that.updateUsersFromDataService(DataService.getUserIdsFromConversations(newListData));
-      } else {
-        that.updateUsersFromStorage(DataService.getUserIdsFromConversations(newListData));
-      }
-      that.setState({dataSource: that.state.dataSource.cloneWithRows(newListData)});
+    console.log('updateDataSource');
+    ConversationManager.getAllConversations((conversations) => {
+      console.log('ChatListView:updateDataSource:getConversations', conversations);
+      that.setState({dataSource: that.state.dataSource.cloneWithRows(conversations)});
     });
   }
 
@@ -62,7 +69,7 @@ class ChatListView extends Component {
     DataService.getUsers({userIds: userIds}, (users) => {
       var usersObj = {};
       for (var j = 0; j < users.length; j++) {
-        usersObj[users[j]._id] = users[j];
+        usersObj[users[j].id] = users[j];
       }
       that.setState({users: usersObj});
     });
@@ -73,41 +80,6 @@ class ChatListView extends Component {
    */
   updateUsersFromStorage(userIds) {
     // nothing to do here
-  }
-
-  /**
-   * Lazy processing display name.
-   * It will be saved into conversations data once done
-   * if the conversation display_name is set, use it
-   * Otherwise concat the users display names
-   * TODO: probably this should be done in DataService not here.
-   * TODO: However this isn't very ideal. Because if server push a change into client. client won't update display name until it get's back into this screen
-   */
-  getConversationDisplayName(conversation) {
-    if (conversation.display_name) {
-      return conversation.display_name;
-    } else {
-      var displayName = [];
-      var that = this;
-      var myInfo = Storage.getMyInfo();
-      var myId = myInfo.user_id;
-      console.log('myId', myId);
-      conversation.members.split(',').forEach((userId) => {
-        if(myId != userId && that.state.users[userId]) {
-          displayName.push(that.state.users[userId].display_name || that.state.users[userId].username);
-        }
-      });
-      conversation.display_name = displayName.join(', ');
-      return conversation.display_name;
-    }
-  }
-
-  /**
-   * new conversation is created
-   */
-  onNewConversation() {
-    // TODO: listen to an event new converation created, then update the list
-    this.updateDataSource({fromServer: true});
   }
 
   /**
@@ -124,7 +96,8 @@ class ChatListView extends Component {
 
   back() {
     console.log('ChatListView:back:updateDataSource');
-    this.updateDataSource({fromServer: false});
+    this.updateDataSource();
+    this.fetchNewMessages();
   }
 
   renderRow(
@@ -133,13 +106,14 @@ class ChatListView extends Component {
     rowID: number | string,
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void
   ) {
+  console.log('render row', conversation.get('last_message_ts'));
     return (
       <ChatSummaryCellView
         onSelect={() => this.selectConversation(conversation)}
-        id={conversation.id}
-        displayName={this.getConversationDisplayName(conversation)}
-        lastMessage={conversation.last_message}
-        lastMessageTS={conversation.last_message_ts}
+        id={conversation.get('id')}
+        displayName={conversation.getDisplayName()}
+        lastMessage={conversation.get('last_message')}
+        lastMessageTS={conversation.get('last_message_ts')}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
       />

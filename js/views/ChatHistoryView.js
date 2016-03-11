@@ -52,13 +52,12 @@ class ChatHistoryView extends Component {
         footerY : event.nativeEvent.layout.y
       });
     }}></View>);
-    //console.log('ChatHistoryView:renderFooter');
   }
 
   getDisplayName(userId) {
     console.log('this.props.users', this.props.users);
     if (this.props.users[userId]) {
-      return this.props.users[userId].display_name || this.props.users[userId].username;
+      return this.props.users[userId].getDisplayName();
     }
     return 'unknown user';
   }
@@ -91,7 +90,7 @@ class ChatHistoryView extends Component {
         ref="list"
         dataSource={this.state.dataSource}
         renderRow={this.renderRow.bind(this)}
-        renderSeparator={this.renderSeparator}
+        renderSeparator={() => {}}
         onEndReached={this.onEndReached}
         onLayout={this.onListViewLayout.bind(this)}
         renderFooter={this.renderFooter.bind(this)}
@@ -109,9 +108,7 @@ var styleCommon = require("./../StylesCommon");
 
 const styles = StyleSheet.create({
   rowSeparator: {
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
     height: 1,
-    marginLeft: 4,
   },
 });
 
