@@ -4,7 +4,7 @@
  */
 'use strict';
 var React = require('react-native');
-var {AppRegistry, Component, StyleSheet, Navigator, Text, View, AppStateIOS} = React;
+var {AppRegistry, Component, StyleSheet, Navigator, Text, View, AppStateIOS, PushNotificationIOS} = React;
 var LoginView = require('./js/views/LoginView');
 var SignUpView = require('./js/views/SignupView');
 var ChatListView = require('./js/views/ChatListView');
@@ -12,6 +12,8 @@ var LoadingView = require('./js/views/LoadingView');
 var NewChatView = require('./js/views/NewChatView');
 var ChatDetailView = require('./js/views/ChatDetailView');
 var SettingsView = require('./js/views/SettingsView');
+var emitter = require('./js/classes/Emitter');
+var Storage = require('./js/classes/Storage');
 
 (route, routeStack) => Navigator.SceneConfigs.FloatFromRight
 
@@ -25,14 +27,35 @@ class reactNativeChat extends Component {
     };
   }
 
-  componentDidMount() {
+  componentWillMount() {
     AppStateIOS.addEventListener('change', this._handleAppStateChange.bind(this));
     AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning.bind(this));
+    PushNotificationIOS.addEventListener('notification', this._onNotification);
+    PushNotificationIOS.addEventListener('register', this._onRegsterNotification);
+  }
+
+  componentDidMount() {
+    // TODO: make a dialog before requesting permissions
+    PushNotificationIOS.requestPermissions();
+
+
   }
 
   componentWillUnmount() {
     AppStateIOS.removeEventListener('change', this._handleAppStateChange.bind(this));
     AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning).bind(this);
+    PushNotificationIOS.removeEventListener('notification', this._onNotification);
+    PushNotificationIOS.removeEventListener('register', this._onRegsterNotification);
+  }
+
+  _onRegsterNotification(deviceTokenIOS) {
+    console.log('_onRegsterNotification deviceToken=', deviceTokenIOS);
+    // Save this token locally.
+    Storage.setValueForKey('deviceTokenIOS', deviceTokenIOS);
+  }
+
+  _onNotification(notification) {
+    emitter.emit('notification', notification);
   }
 
   _handleMemoryWarning() {
@@ -46,6 +69,11 @@ class reactNativeChat extends Component {
     });
     if (appState == 'active') {
       // TODO: emit some event to notify all UI components to do something.
+      emitter.emit('appBecomeActive');
+      // TODO: reset the badge number after viewed the message
+      PushNotificationIOS.setApplicationIconBadgeNumber(0);
+    } else {
+      emitter.emit('appGoToBackground');
     }
     console.log('reactNativeChat:AppStateChange', appState);
   }

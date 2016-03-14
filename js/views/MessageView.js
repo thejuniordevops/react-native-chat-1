@@ -20,46 +20,89 @@ class MessageView extends Component {
   }
 
   render() {
+    console.log('this.props.isMine', this.props.isMine);
+    var styles = this.props.isMine ? stylesMine : stylesNotMine;
     return (
-      <View style={[styles.container]}>
-      <View style={styles.infoView}>
-        <Text style={styles.username}>{this.props.fromUserDisplayName}</Text>
-        <Text style={styles.tsText}>@{this.toDate(this.props.ts)}</Text>
+      <View style={[stylesShared.container, styles.container]}>
+      <View style={[stylesShared.infoView, styles.infoView]}>
+        <Text style={[stylesShared.username, styles.username]}>{this.props.fromUserDisplayName}</Text>
+        <Text style={styles.tsText}> @{this.toDate(this.props.ts)}</Text>
       </View>
-
-      <Text style={styles.messageText}>{this.props.text}</Text>
+      <View style={[stylesShared.messageTextView, styles.messageTextView]}>
+        <Text style={[stylesShared.messageText, styles.messageText]}>{this.props.text}</Text>
+      </View>
       </View>
     );
   }
 }
 
 var styleCommon = require('./../StylesCommon');
+const TEXT_BOX_MARGIN = 25;
 
-const styles = StyleSheet.create({
+const stylesShared = StyleSheet.create({
   container: {
+    flex:1,
     backgroundColor: Config.styles.colorWhite,
   },
   infoView: {
     flex: 1,
+    marginTop: 5,
+    marginBottom: 0
+  },
+
+  messageTextView: {
+    flex:1,
     flexDirection: 'row',
+    //backgroundColor: '#cccccc',
+  },
+  messageText: {
+    color: '#333333',
+    fontSize: 14,
+    padding: 15,
+    marginTop: 5,
+    marginBottom: 10,
+    // TODO: borderRadius property is buggy. To find out a way to do border radius.
+  },
+  tsText: {
+    color: '#888888',
+    fontSize: 12,
+  }
+});
+
+const stylesMine = StyleSheet.create({
+  infoView: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent:'flex-end',
+    marginRight: 10
+  },
+  username: {
+    color: '#1e9609'
+  },
+  messageTextView: {
+    justifyContent:'flex-end',
+    marginRight: TEXT_BOX_MARGIN
+  },
+  messageText: {
+    backgroundColor: '#85c47d'
+  }
+});
+
+const stylesNotMine = StyleSheet.create({
+  infoView: {
+    flexDirection: 'row',
+    justifyContent:'flex-start',
     marginLeft: 10,
   },
   username: {
     color: '#0095ff'
   },
-  messageText: {
-    backgroundColor: Config.styles.colorLightGrey,
-    width: 250,
-    color: '#333333',
-    fontSize: 14,
-    marginLeft: 40,
-    padding: 10,
-    borderRadius: 5
+  messageTextView: {
+    justifyContent:'flex-start',
+    marginLeft: TEXT_BOX_MARGIN
   },
-  tsText: {
-    color: '#888888',
-    fontSize: 12,
-    marginLeft:5
+  messageText: {
+    backgroundColor: Config.styles.colorLightGrey
   }
 });
 

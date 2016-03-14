@@ -38,6 +38,12 @@ class DataService {
     };
   }
 
+  disconnect() {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+  }
   /**
    *
    * @param cb
@@ -81,15 +87,18 @@ class DataService {
 
   /**
    * Re-handshake after disconnect
+   * @params cb: function | undefined
    */
   reHandshake(cb) {
     var that = this;
-    Storage.getValueForKey('token', (token) => {
-      if (token) {
-        emitter.addListener('handshake', cb);
+    Storage.getValuesForKeys(['token', 'deviceTokenIOS'], (results) => {
+      if (results.token) {
+        console.log('reHandshake');
+        cb && emitter.once('handshake', cb);
         that.ws.send(JSON.stringify({
           action: 'handshake',
-          token: token
+          token: results.token,
+          deviceTokenIOS: results.deviceTokenIOS
         }));
       }
     });
@@ -99,7 +108,7 @@ class DataService {
    * First time login with token
    */
   doFirstLogin(params, cb) {
-    emitter.addListener(params.action, cb);
+    emitter.once(params.action, cb);
     var that = this;
     this.connect(() => {
       that.ws.send(JSON.stringify(params));
@@ -110,11 +119,13 @@ class DataService {
    */
   loginWithToken(cb) {
     var that = this;
-    Storage.getValueForKey('token', (token) => {
-      if (token && token != 'undefined') {
+    Storage.getValuesForKeys(['token', 'deviceTokenIOS'], (results) => {
+      if (results.token && results.token != 'undefined') {
+        console.log('loginWithToken & doFirstLogin');
         that.doFirstLogin({
           action: 'handshake',
-          token: token
+          token: results.token,
+          deviceTokenIOS: results.deviceTokenIOS
         }, (res) => {
           that.postHandshake(res, cb);
         });
@@ -157,7 +168,7 @@ class DataService {
     });
     Storage.nukeDB();
     console.log('close ws');
-    this.ws.close(); // TODO: this seems to be not working
+    this.disconnect(); // TODO: this seems to be not working
   }
 
   /**

@@ -26,57 +26,65 @@ class ChatMessageInputView extends Component {
     var TouchableElement = TouchableHighlight; // for ios
     return (
       <View style={[this.props.style, styles.container]}>
-        <TextInput
-          style={[styleCommon.input, styles.input]}
-          onChangeText={(message) => this.setState({message})}
-          value={this.state.message} />
-        <TouchableElement
-          onPress={this.sendMessage.bind(this)}
-          activeOpacity={0.8}
-          underlayColor={Config.styles.colorWhite}
-          style={[styleCommon.touchableButton, styles.touchableSend]}>
-          <Text style={[styleCommon.buttonSmall, styles.buttonSend]}>
-            {LocalizedText.text('send')}
-          </Text>
-        </TouchableElement>
+        <View style={styles.inputView}>
+            <TextInput
+              returnKeyType={'send'}
+              style={[styleCommon.input, styles.input]}
+              onChangeText={(message) => this.setState({message})}
+              onSubmitEditing={this.sendMessage.bind(this)}
+              value={this.state.message} />
+        </View>
+        <View style={styles.buttonView}>
+          <TouchableElement
+            onPress={this.sendMessage.bind(this)}
+            activeOpacity={0.8}
+            underlayColor={Config.styles.colorWhite}
+            style={[styleCommon.touchableButton, styles.touchableSend]}>
+            <Text style={[styleCommon.buttonSmall, styles.buttonSend]}>
+              {LocalizedText.text('send')}
+            </Text>
+          </TouchableElement>
+        </View>
       </View>
     );
   }
 }
 
 var styleCommon = require("./../StylesCommon");
+const BUTTON_WIDTH = 80;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: 'flex-end',
     flexDirection: 'row',
+    padding: 5,
+    backgroundColor: Config.styles.colorLightGrey,
+    height: 45
+  },
+  inputView: {
+    flex: 1
   },
   input: {
-    marginTop: 15,
-    marginLeft: 5,
-    marginRight:5,
     paddingLeft: 5,
     paddingRight: 5,
-    width: 430,
-    height: 20,
+    height: 25,
     flex: 1,
     justifyContent: 'flex-start',
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
+  buttonView: {
+    width: BUTTON_WIDTH,
+    marginTop: 5
+  },
   touchableSend: {
-    marginTop: 15,
-    marginRight: 5,
-    width: 50,
-    height: 20,
-    flex: 1,
-    justifyContent: 'flex-end',
-    flexDirection: 'row',
-    alignItems: 'center'
+
   },
   buttonSend: {
-    width: 50
+    backgroundColor: Config.styles.colorGreen,
+    width: BUTTON_WIDTH,
+    height: 25
   }
 });
 

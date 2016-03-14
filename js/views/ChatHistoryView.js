@@ -3,6 +3,7 @@
 var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, ListView, View} = React;
 var MessageView = require('./MessageView');
+var UserManager = require('../classes/UserManager');
 
 class ChatHistoryView extends Component {
 
@@ -55,7 +56,7 @@ class ChatHistoryView extends Component {
   }
 
   getDisplayName(userId) {
-    console.log('this.props.users', this.props.users);
+    //console.log('this.props.users', this.props.users);
     if (this.props.users[userId]) {
       return this.props.users[userId].getDisplayName();
     }
@@ -64,7 +65,12 @@ class ChatHistoryView extends Component {
 
   renderRow(message) {
     return (
-      <MessageView ts={message.created_at} text={message.text} fromUserDisplayName={this.getDisplayName(message.created_by)} />
+      <MessageView
+        ts={message.created_at}
+        text={message.text}
+        isMine={message.created_by == UserManager.getMyId()}
+        fromUserDisplayName={this.getDisplayName(message.created_by)}
+      />
     );
   }
 

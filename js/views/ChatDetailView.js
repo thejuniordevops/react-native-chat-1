@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('react-native');
-var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, View} = React;
+var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, View, Dimensions, DeviceEventEmitter} = React;
 var DataService = require('../classes/DataService');
 var ChatHistoryView = require('./ChatHistoryView');
 var ChatMessageInputView = require('./ChatMessageInputView');
@@ -10,6 +10,7 @@ var LocalizedText = require("../classes/LocalizedText");
 var NavigationBar = require('react-native-navbar');
 var ConversationManager = require('../classes/ConversationManager');
 var UserManager = require('../classes/UserManager');
+var emitter = require('../classes/Emitter');
 
 //props required: username
 class ChatDetailView extends Component {
@@ -18,8 +19,30 @@ class ChatDetailView extends Component {
     super(props);
     this.state = {
       messages: [],
-      users: {}
+      users: {},
+      visibleHeight: Dimensions.get('window').height
     };
+  }
+
+  componentWillMount () {
+    DeviceEventEmitter.addListener('keyboardWillShow', this.keyboardWillShow.bind(this));
+    DeviceEventEmitter.addListener('keyboardWillHide', this.keyboardWillHide.bind(this));
+    emitter.addListener('newMessageReceived', this.newMessageReceived.bind(this));
+  }
+
+  componentWillUnmount () {
+    DeviceEventEmitter.removeAllListeners('keyboardWillShow');
+    DeviceEventEmitter.removeAllListeners('keyboardWillHide');
+    emitter.removeAllListeners('newMessageReceived');
+  }
+
+  keyboardWillShow (e) {
+    let newSize = Dimensions.get('window').height - e.endCoordinates.height;
+    this.setState({visibleHeight: newSize});
+  }
+
+  keyboardWillHide (e) {
+    this.setState({visibleHeight: Dimensions.get('window').height});
   }
 
   componentDidMount() {
@@ -36,12 +59,16 @@ class ChatDetailView extends Component {
     var that = this;
     ConversationManager.getMessages({conversationId: this.props.conversation.get('id')}, (messages) => {
       console.log('ChatDetailView:getMessages', messages);
-      console.log('ChatDetailView:getMessages users', that.state.users);
       that.setState({
         messages: messages
       });
     });
   }
+
+  newMessageReceived() {
+    this.getMessages();
+  }
+
 
   /**
    *
@@ -69,6 +96,7 @@ class ChatDetailView extends Component {
     var displayName = this.props.conversation.getDisplayName();
 
     var TouchableElement = TouchableHighlight; // for ios
+    console.log('chatDetailView Height', this.state.visibleHeight);
     return (
       <View style={[styleCommon.background]}>
         <NavigationBar
@@ -76,13 +104,16 @@ class ChatDetailView extends Component {
           leftButton={leftButtonConfig}
         />
         <View style={styles.container}>
-          <ChatHistoryView style={styles.history} messages={this.state.messages} users={this.state.users} />
+          <ChatHistoryView style={[styles.history, {height: this.state.visibleHeight - NAV_HEIGHT - INPUT_HEIGHT}]} messages={this.state.messages} users={this.state.users} />
           <ChatMessageInputView style={styles.inputView} onSend={this.send.bind(this)} />
         </View>
       </View>
     );
   }
 }
+
+const NAV_HEIGHT = 64;
+const INPUT_HEIGHT = 45;
 
 var styleCommon = require("./../StylesCommon");
 
@@ -92,10 +123,9 @@ const styles = StyleSheet.create({
   },
   history: {
     backgroundColor: '#ffffff',
-    height: 450,
   },
   inputView: {
-    height: 45,
+    height: INPUT_HEIGHT,
     backgroundColor: '#ffffff'
   }
 });

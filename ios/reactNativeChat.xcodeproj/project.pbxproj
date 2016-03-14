@@ -24,6 +24,7 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		AF5CCB4A1C8ABBED00F47D00 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AF5CCB491C8ABBED00F47D00 /* libsqlite3.0.tbd */; };
 		AF5CCB4B1C8ABF9B00F47D00 /* libSQLite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF5CCB481C8ABBB800F47D00 /* libSQLite.a */; };
+		AFD86E441C95E3A6006B9676 /* libRCTPushNotification.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFD86E431C95E2FB006B9676 /* libRCTPushNotification.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -111,6 +112,13 @@
 			remoteGlobalIDString = E23D7B471ACEFE2A00C59171;
 			remoteInfo = SQLite;
 		};
+		AFD86E421C95E2FB006B9676 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFD86E3E1C95E2FB006B9676 /* RCTPushNotification.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RCTPushNotification;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -137,6 +145,7 @@
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		AF5CCB391C8ABBB700F47D00 /* SQLite.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SQLite.xcodeproj; path = "/git/reactNativeChat/node_modules/react-native/React/../../react-native-sqlite-storage/src/ios/SQLite.xcodeproj"; sourceTree = "<absolute>"; };
 		AF5CCB491C8ABBED00F47D00 /* libsqlite3.0.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
+		AFD86E3E1C95E2FB006B9676 /* RCTPushNotification.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTPushNotification.xcodeproj; path = "../node_modules/react-native/Libraries/PushNotificationIOS/RCTPushNotification.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +162,7 @@
 			files = (
 				AF5CCB4B1C8ABF9B00F47D00 /* libSQLite.a in Frameworks */,
 				AF5CCB4A1C8ABBED00F47D00 /* libsqlite3.0.tbd in Frameworks */,
+				AFD86E441C95E3A6006B9676 /* libRCTPushNotification.a in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
 				00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */,
 				00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */,
@@ -275,6 +285,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				AFD86E3E1C95E2FB006B9676 /* RCTPushNotification.xcodeproj */,
 				AF5CCB491C8ABBED00F47D00 /* libsqlite3.0.tbd */,
 				146833FF1AC3E56700842450 /* React.xcodeproj */,
 				00C302A71ABCB8CE00DB3ED1 /* RCTActionSheet.xcodeproj */,
@@ -324,6 +335,14 @@
 			isa = PBXGroup;
 			children = (
 				AF5CCB481C8ABBB800F47D00 /* libSQLite.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AFD86E3F1C95E2FB006B9676 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AFD86E431C95E2FB006B9676 /* libRCTPushNotification.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -416,6 +435,10 @@
 				{
 					ProductGroup = 00C302D41ABCB9D200DB3ED1 /* Products */;
 					ProjectRef = 00C302D31ABCB9D200DB3ED1 /* RCTNetwork.xcodeproj */;
+				},
+				{
+					ProductGroup = AFD86E3F1C95E2FB006B9676 /* Products */;
+					ProjectRef = AFD86E3E1C95E2FB006B9676 /* RCTPushNotification.xcodeproj */;
 				},
 				{
 					ProductGroup = 139105B71AF99BAD00B5F7CC /* Products */;
@@ -526,6 +549,13 @@
 			fileType = archive.ar;
 			path = libSQLite.a;
 			remoteRef = AF5CCB471C8ABBB800F47D00 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		AFD86E431C95E2FB006B9676 /* libRCTPushNotification.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCTPushNotification.a;
+			remoteRef = AFD86E421C95E2FB006B9676 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -655,11 +685,13 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../node_modules/react-native/React/**",
+					"$(SRCROOT)/../node_modules/react-native/Libraries/PushNotificationIOS/**",
 				);
 				INFOPLIST_FILE = reactNativeChat/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ds.ochat;
 				PRODUCT_NAME = reactNativeChat;
 				PROVISIONING_PROFILE = "";
 			};
@@ -675,11 +707,13 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../node_modules/react-native/React/**",
+					"$(SRCROOT)/../node_modules/react-native/Libraries/PushNotificationIOS/**",
 				);
 				INFOPLIST_FILE = reactNativeChat/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ds.ochat;
 				PRODUCT_NAME = reactNativeChat;
 				PROVISIONING_PROFILE = "";
 			};

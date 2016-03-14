@@ -10,6 +10,7 @@ var Storage = require('../classes/Storage');
 var ConversationManager = require('../classes/ConversationManager');
 var UserManager = require('../classes/UserManager');
 var ChatSummaryCellView = require('./ChatSummaryCellView');
+var emitter = require('../classes/Emitter');
 
 class ChatListView extends Component {
 
@@ -36,6 +37,11 @@ class ChatListView extends Component {
     //first fetch from local
     this.updateDataSource();
     this.fetchNewMessages();
+    emitter.addListener('newMessageReceived', this.newMessageReceived.bind(this));
+  }
+
+  componentWillUnmount () {
+    emitter.removeAllListeners('newMessageReceived');
   }
 
   fetchNewMessages() {
@@ -48,12 +54,17 @@ class ChatListView extends Component {
     });
   }
 
+  newMessageReceived(data) {
+    console.log('ChatListView:newMessageReceived', data);
+    this.updateDataSource();
+  }
+
   /**
    * @param params {fromServer: boolean}
    */
   updateDataSource() {
     var that = this;
-    console.log('updateDataSource');
+    console.log('ChatListView:updateDataSource');
     ConversationManager.getAllConversations((conversations) => {
       console.log('ChatListView:updateDataSource:getConversations', conversations);
       that.setState({dataSource: that.state.dataSource.cloneWithRows(conversations)});
@@ -97,7 +108,6 @@ class ChatListView extends Component {
   back() {
     console.log('ChatListView:back:updateDataSource');
     this.updateDataSource();
-    this.fetchNewMessages();
   }
 
   renderRow(

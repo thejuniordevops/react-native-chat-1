@@ -1,5 +1,6 @@
 'use strict';
 
+var Config = require('./../Config');
 var SQLite = require('react-native-sqlite-storage');
 
 /**
@@ -77,6 +78,7 @@ class Storage {
         _initCallbacks.forEach((func) => {
           func && func();
         });
+        _initCallbacks = [];
       }
     };
     tableCreateFunctions.forEach((func) => {
@@ -139,6 +141,24 @@ class Storage {
       } else {
         cb && cb(null);
       }
+    });
+  }
+
+  getValuesForKeys(keys, cb) {
+    var counter = 0;
+    var results = {};
+
+    var callback = (key, value) => {
+      results[key] = value;
+      if(++counter >= keys.length) {
+        cb && cb(results);
+      }
+    }
+    var that = this;
+    keys.forEach((key) => {
+      that.getValueForKey(key, (val) => {
+        callback(key, val);
+      });
     });
   }
 
@@ -205,7 +225,7 @@ class Storage {
    */
   getMessages(params, cb) {
     this.execQuery('SELECT * FROM `message` WHERE `conversation_id`="' + params.conversationId +
-      '" ORDER BY `created_at` DESC LIMIT 100', (messages) => {
+      '" ORDER BY `created_at` DESC LIMIT ' + Config.defaultChatHistoryLimit, (messages) => {
       cb && cb(messages.reverse()); //reverse order
     });
   }
