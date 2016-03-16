@@ -4,7 +4,7 @@ var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, TextInput, View} = React;
 var DataService = require('../classes/DataService');
 var Config = require('../Config');
-var LocalizedText = require("../classes/LocalizedText");
+var LocalizedText = require('../classes/LocalizedText');
 
 class SignupView extends Component {
 
@@ -38,7 +38,9 @@ class SignupView extends Component {
   }
 
   goToStepTwo() {
-
+    this.props.navigator.replace({
+      name: 'SignupStepTwo'
+    });
   }
 
   showError(errMsg) {

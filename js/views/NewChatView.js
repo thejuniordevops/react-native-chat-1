@@ -34,10 +34,12 @@ class NewChatView extends Component {
         var user = res.response.data;
         ConversationManager.newConversation({userIds: [user.id]}, (data) => {
           console.log("newchatView: conversation", data.conversation);
+          // Go directly into conversation detail
           that.props.navigator.replace({
             name: 'ChatDetail',
             conversation: data.conversation
           });
+          that.props.onBack && that.props.onBack(); // call on back anyway to refresh chat list
         });
         console.log('NewChatView:start chat with user', user);
       }

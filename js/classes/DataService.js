@@ -71,18 +71,34 @@ class DataService {
    */
   doAction (params, cb, skipHanshake) {
     var that = this;
-    emitter.once(params.action, cb);
+    cb && emitter.once(params.action, cb);
     this.autoConnect(() => {
       that.ws.send(JSON.stringify(params));
     }, skipHanshake);
   }
 
   register(params, cb) {
+    var that = this;
     this.doAction({
       action: 'register',
       username: params.username,
       password: params.password
-    }, cb, true);
+    }, (res) => {
+      that.postHandshake(res);
+      cb && cb(res);
+    }, true);
+  }
+
+
+  /**
+   * For sign up step 2 set email and display name
+   * @param params {displayName: string, email: string}
+   */
+  updateProfile(params, cb) {
+    this.doAction({
+      action: 'updateProfile',
+      data: params
+    }, cb);
   }
 
   /**

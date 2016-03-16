@@ -12,6 +12,7 @@ var LoadingView = require('./js/views/LoadingView');
 var NewChatView = require('./js/views/NewChatView');
 var ChatDetailView = require('./js/views/ChatDetailView');
 var SettingsView = require('./js/views/SettingsView');
+var SignupStepTwoView = require('./js/views/SignupStepTwoView');
 var emitter = require('./js/classes/Emitter');
 var Storage = require('./js/classes/Storage');
 
@@ -81,14 +82,15 @@ class reactNativeChat extends Component {
   render() {
     return (
       <Navigator
-      style={styles.container}
-      initialRoute = {{
-        name: 'Loading',
-        index: 0
-      }}
-      renderScene = {this.navigatorRenderScene}
+        style={styles.container}
+        initialRoute = {{
+          name: 'Loading',
+          //name: 'SignupStepTwo',
+          index: 0
+        }}
+        renderScene = {this.navigatorRenderScene}
       />
-      );
+    );
   }
   navigatorRenderScene(route, navigator) {
     switch (route.name) {
@@ -98,6 +100,8 @@ class reactNativeChat extends Component {
         return (<LoginView navigator={navigator} />);
       case 'Signup':
         return (<SignUpView navigator={navigator} />);
+      case 'SignupStepTwo':
+        return (<SignupStepTwoView navigator={navigator} />);
       case 'ChatList':
         return (<ChatListView navigator={navigator} />);
       case 'NewChat':

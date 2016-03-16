@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('react-native');
-var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, View} = React;
+var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, TextInput, View} = React;
 var DataService = require('../classes/DataService');
 //var Config = require('./Config');
 
@@ -14,41 +14,34 @@ class SignupView extends Component {
       email: ""
     };
   }
-  componentDidMount() {
-    DataService.connect();
-  }
 
-  register() {
-    console.log('register');
-    DataService.register();
-  }
-
-
-  login() {
-    console.log('login');
+  next() {
+    DataService.updateProfile({
+      displayName: this.state.displayName,
+      email: this.state.email
+    });
+    this.props.navigator.replace({name: 'ChatList'});
   }
 
   render() {
     var TouchableElement = TouchableHighlight; // for ios
     return (
       <View style={styles.container}>
-        // name
         <TextInput
-          style={styles.input}
-          placeholder={"name"}
-          placeholderTextColor={"#cccccc"}
-          onChangeText={(name) => this.setState({name})}
+          style={styleCommon.input}
+          placeholder={"Display Name"}
+          onChangeText={(displayName) => this.setState({displayName})}
           value={this.state.name}
         />
-        // email
         <TextInput
-          style={styles.input}
+          style={styleCommon.input}
+          placeholder={"Email"}
           onChangeText={(email) => this.setState({email})}
           value={this.state.email}
-      />
-        <TouchableElement onPress={this.login} style={styles.touchable}>
-          <Text style={styles.button}>
-          Start Chatting
+        />
+        <TouchableElement onPress={this.next.bind(this)} style={[styleCommon.touchableButton, styles.touchable]}>
+          <Text style={styleCommon.buttonMedium}>
+            Start
           </Text>
         </TouchableElement>
 
@@ -57,23 +50,24 @@ class SignupView extends Component {
   }
 }
 
+var styleCommon = require("./../StylesCommon");
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: 200,
-    paddingBottom: 200,
+    paddingTop: 100,
+    paddingBottom: 100,
+  },
+  input: {
+
   },
   touchable: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 60,
     width: 200,
-    borderRadius: 10
+    borderRadius: 10,
+    marginTop: 10
   },
   button: {
     fontSize: 16,
