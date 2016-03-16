@@ -24,7 +24,7 @@ class ConversationManager {
     // We just need to load conversations from storage.
     // TODO: consider caching them, because there won't be too many conversations
     Storage.getConversations((conversations) => {
-      cb && cb(conversations.map((conv) => {return new Conversation(conv)}));
+      cb && cb(conversations);
     });
   }
 
@@ -61,7 +61,7 @@ class ConversationManager {
     if (message && message.id) {
       // acknowledge it
       DataService.acknowledgeNewMessages({message_ids: [message.id]});
-      Storage.newMessage(message);
+      this.newMessage(message);
       this._fetchAndSaveConversations([message.conversation_id], (res) => {
         res.newMessages = [message];
         emitter.emit('newMessageReceived', res);
@@ -88,7 +88,7 @@ class ConversationManager {
       DataService.acknowledgeNewMessages({message_ids: messageIds});
       // store the message
       newMessages.forEach((message) => {
-        Storage.newMessage(message);
+        that.newMessage(message);
       });
       // Next fetch the conversation info. Because the conversation data could be updated on the server side
       var conversationIds = newMessages.map((n) => {return n.conversation_id});
@@ -101,6 +101,22 @@ class ConversationManager {
           emitter.emit('newMessageReceived', res);
         }
       });
+    });
+  }
+
+  /**
+   * Store new message and set conversation last message
+   * TODO: check and compare the last_message_ts, only insert if message is newer
+   * {id: ObjectId, created_by: objectId, created_at: timestamp, text: string, conversation_id: objectId, recipients: array<objectId>, meta: object}
+   */
+  newMessage(message, cb) {
+    Storage.newMessage(message);
+    Storage.updateConversation({
+      conversation_id: message.conversation_id,
+      last_message_ts: Date.parse(message.created_at),
+      last_message: message.text
+    }, () => {
+      cb && cb(message);
     });
   }
 
@@ -149,8 +165,9 @@ class ConversationManager {
    * return the new message
    */
   sendTextMessage(params, cb) {
+    var that = this;
     DataService.sendTextMessage(params, (message) => {
-      Storage.newMessage(message, cb);
+      that.newMessage(message, cb);
     });
   }
 

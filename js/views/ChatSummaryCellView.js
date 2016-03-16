@@ -13,14 +13,24 @@ class ChatSummaryCellView extends Component {
     return (
       <View style={styles.cell}>
         <TouchableElement
+          style={styles.touchable}
           onPress={this.props.onSelect}
           onShowUnderlay={this.props.onHighlight}
           onHideUnderlay={this.props.onUnhighlight}>
           <View style={styles.row}>
-            <View style={styles.textContainer}>
-              <Text style={styles.displayName} numberOfLines={1}>
-                {this.props.displayName}
-              </Text>
+            <View style={styles.textContainerLineOne}>
+              <View style={styles.displayNameView}>
+                <Text style={styles.displayNameText}>
+                  {this.props.displayName}
+                </Text>
+              </View>
+              <View style={styles.lastMessageTSView}>
+                <Text style={styles.lastMessageTSText}>
+                {this.props.lastMessageTS}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.textContainerLineTwo}>
               <Text style={styles.lastMessage}>
                 {this.props.lastMessage}
               </Text>
@@ -38,14 +48,41 @@ const styles = StyleSheet.create({
   cell: {
     backgroundColor: '#ffffff'
   },
-  textContainer: {
+  touchable: {
 
+  },
+  textContainerLineOne: {
+    padding: 10,
+    flex: 1,
+    flexDirection: 'row',
+  },
+  textContainerLineTwo: {
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingBottom: 10
   },
   row: {
 
   },
-  displayName: {
+  displayNameView: {
+    marginTop: 0,
+    flex: 1,
+    flexDirection: 'row',
+  },
+  displayNameText: {
+    fontWeight: 'bold',
+  },
+  lastMessageTSView: {
+    marginRight: 5,
+    marginTop: 0,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end'
+  },
 
+  lastMessageTSText: {
+    color: Config.styles.colorDarkGrey,
   },
   lastMessage: {
 

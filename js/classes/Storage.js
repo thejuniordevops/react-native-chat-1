@@ -202,11 +202,12 @@ class Storage {
   newConversation(params, cb) {
     console.log('Storage:newConversation', params);
     var query = 'INSERT OR REPLACE INTO `conversation` ' +
-    '(`id`, `members`, `display_name`, `created_by`, `last_message`, `last_message_ts`) VALUES ' +
+    '(`id`, `members`, `display_name`, `created_by`) VALUES ' +
     '("' + params.id +'", "' + params.members.join(',') + '", "' +
-    params.displayName + '", "' + params.created_by + '","", 0)';
+    params.displayName + '", "' + params.created_by + '")';
     this.execQuery(query, cb);
   }
+
   /**
    * @param params {id: ObjectId, created_by: objectId, created_at: timestamp, text: string, conversation_id: objectId, recipients: array<objectId>, meta: object}
    */
@@ -241,8 +242,16 @@ class Storage {
    * The conversation info can be updated
    * For example, adding member, changing conversation display_name
    */
-  updateConversation() {
-
+  updateConversation(params, cb) {
+    var setQuery = [];
+    var fields = ['last_message', 'last_message_ts'];
+    fields.forEach((key) => {
+      if (params[key]) {
+        setQuery.push('`' + key + '`="' + params[key] + '"');
+      }
+    });
+    var query = 'UPDATE `conversation` SET ' + setQuery.join(',') + ' WHERE id="' + params.conversation_id + '"';
+    this.execQuery(query, cb);
   }
 
   execQuery(query, cb) {

@@ -20,7 +20,6 @@ class MessageView extends Component {
   }
 
   render() {
-    console.log('this.props.isMine', this.props.isMine);
     var styles = this.props.isMine ? stylesMine : stylesNotMine;
     return (
       <View style={[stylesShared.container, styles.container]}>

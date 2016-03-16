@@ -8,6 +8,7 @@ var LocalizedText = require("../classes/LocalizedText");
 var NavigationBar = require('react-native-navbar');
 var Storage = require('../classes/Storage');
 var ConversationManager = require('../classes/ConversationManager');
+var Conversation = require('../classes/Conversation');
 var UserManager = require('../classes/UserManager');
 var ChatSummaryCellView = require('./ChatSummaryCellView');
 var emitter = require('../classes/Emitter');
@@ -116,14 +117,16 @@ class ChatListView extends Component {
     rowID: number | string,
     highlightRowFunc: (sectionID: ?number | string, rowID: ?number | string) => void
   ) {
-  console.log('render row', conversation.get('last_message_ts'));
+
+    console.log('render row', conversation);
+    var conv = new Conversation(conversation);
     return (
       <ChatSummaryCellView
-        onSelect={() => this.selectConversation(conversation)}
-        id={conversation.get('id')}
-        displayName={conversation.getDisplayName()}
-        lastMessage={conversation.get('last_message')}
-        lastMessageTS={conversation.get('last_message_ts')}
+        onSelect={() => this.selectConversation(conv)}
+        id={conv.get('id')}
+        displayName={conv.getDisplayName()}
+        lastMessage={conv.get('last_message')}
+        lastMessageTS={conv.get('last_message_ts')}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
       />
