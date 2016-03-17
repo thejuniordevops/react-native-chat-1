@@ -33,7 +33,7 @@ class NewChatView extends Component {
       } else {
         var user = res.response.data;
         ConversationManager.newConversation({userIds: [user.id]}, (data) => {
-          console.log("newchatView: conversation", data.conversation);
+          console.log("newchatView: newConversation", data.conversation);
           // Go directly into conversation detail
           that.props.navigator.replace({
             name: 'ChatDetail',

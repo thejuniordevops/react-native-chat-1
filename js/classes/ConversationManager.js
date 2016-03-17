@@ -24,7 +24,10 @@ class ConversationManager {
     // We just need to load conversations from storage.
     // TODO: consider caching them, because there won't be too many conversations
     Storage.getConversations((conversations) => {
-      cb && cb(conversations);
+      var newConvs = conversations.map((conversation) => {
+        return new Conversation(conversation);
+      });
+      cb && cb(newConvs);
     });
   }
 
@@ -58,12 +61,16 @@ class ConversationManager {
    */
   pushTextMessage(message) {
     console.log('pushTextMessage', message);
+    var that = this;
     if (message && message.id) {
       // acknowledge it
       DataService.acknowledgeNewMessages({message_ids: [message.id]});
       this.newMessage(message);
       this._fetchAndSaveConversations([message.conversation_id], (res) => {
+        // update all messages' last message data in conversation
+        that.updateConversationLastMessage(message);
         res.newMessages = [message];
+        console.log('event:newMessageReceived', res);
         emitter.emit('newMessageReceived', res);
       });
     }
@@ -94,6 +101,12 @@ class ConversationManager {
       var conversationIds = newMessages.map((n) => {return n.conversation_id});
       that._fetchAndSaveConversations(conversationIds, (res) => {
         res.newMessages = newMessages;
+
+        // update all messages' last message data in conversation
+        newMessages.forEach((message) => {
+          that.updateConversationLastMessage(message);
+        });
+
         // res: {newMessages:array, conversations: array, users: array}
         if (cb) {
           cb(res);
@@ -110,7 +123,13 @@ class ConversationManager {
    * {id: ObjectId, created_by: objectId, created_at: timestamp, text: string, conversation_id: objectId, recipients: array<objectId>, meta: object}
    */
   newMessage(message, cb) {
-    Storage.newMessage(message);
+    Storage.newMessage(message, cb);
+  }
+
+  /**
+   * Update conversation last message ts attached to this message
+   */
+  updateConversationLastMessage(message, cb) {
     Storage.updateConversation({
       conversation_id: message.conversation_id,
       last_message_ts: Date.parse(message.created_at),
@@ -168,6 +187,8 @@ class ConversationManager {
     var that = this;
     DataService.sendTextMessage(params, (message) => {
       that.newMessage(message, cb);
+      // update all messages' last message data in conversation
+      that.updateConversationLastMessage(message);
     });
   }
 

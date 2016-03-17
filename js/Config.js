@@ -1,6 +1,6 @@
 var config = {
-  //serverURL: 'http://let.herokuapp.com',
-  serverURL: 'http://localhost:3000',
+  serverURL: 'http://let.herokuapp.com',
+  //serverURL: 'http://localhost:3000',
   styles: {
     colorGreen: '#26ae90',
     colorWhite: '#ffffff',

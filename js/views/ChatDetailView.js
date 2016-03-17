@@ -27,13 +27,13 @@ class ChatDetailView extends Component {
   componentWillMount () {
     DeviceEventEmitter.addListener('keyboardWillShow', this.keyboardWillShow.bind(this));
     DeviceEventEmitter.addListener('keyboardWillHide', this.keyboardWillHide.bind(this));
-    emitter.addListener('newMessageReceived', this.newMessageReceived.bind(this));
+    this.newMessageReceivedSubscriber = emitter.addListener('newMessageReceived', this.newMessageReceived, this);
   }
 
   componentWillUnmount () {
     DeviceEventEmitter.removeAllListeners('keyboardWillShow');
     DeviceEventEmitter.removeAllListeners('keyboardWillHide');
-    emitter.removeAllListeners('newMessageReceived');
+    this.newMessageReceivedSubscriber.remove();
   }
 
   keyboardWillShow (e) {

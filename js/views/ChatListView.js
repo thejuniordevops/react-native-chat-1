@@ -18,7 +18,9 @@ class ChatListView extends Component {
   constructor(props) {
     super(props);
     var ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => {r1 != r2}
+      rowHasChanged: (r1, r2) => {
+        return !r1.isEqual(r2);
+      }
     });
     this.state = {
       dataSource: ds,
@@ -38,11 +40,11 @@ class ChatListView extends Component {
     //first fetch from local
     this.updateDataSource();
     this.fetchNewMessages();
-    emitter.addListener('newMessageReceived', this.newMessageReceived.bind(this));
+    this.newMessageReceivedSubscriber = emitter.addListener('newMessageReceived', this.newMessageReceived, this);
   }
 
   componentWillUnmount () {
-    emitter.removeAllListeners('newMessageReceived');
+    this.newMessageReceivedSubscriber.remove();
   }
 
   fetchNewMessages() {
@@ -119,14 +121,13 @@ class ChatListView extends Component {
   ) {
 
     console.log('render row', conversation);
-    var conv = new Conversation(conversation);
     return (
       <ChatSummaryCellView
-        onSelect={() => this.selectConversation(conv)}
-        id={conv.get('id')}
-        displayName={conv.getDisplayName()}
-        lastMessage={conv.get('last_message')}
-        lastMessageTS={conv.get('last_message_ts')}
+        onSelect={() => this.selectConversation(conversation)}
+        id={conversation.get('id')}
+        displayName={conversation.getDisplayName()}
+        lastMessage={conversation.get('last_message')}
+        lastMessageTS={conversation.getLastTSHumanReadable()}
         onHighlight={() => highlightRowFunc(sectionID, rowID)}
         onUnhighlight={() => highlightRowFunc(null, null)}
       />
@@ -148,7 +149,8 @@ class ChatListView extends Component {
       title: 'Setting',
       handler: () => {
         that.props.navigator.push({
-          name: 'Settings'
+          name: 'Settings',
+          onBack: that.back.bind(that)
         });
       }
     };

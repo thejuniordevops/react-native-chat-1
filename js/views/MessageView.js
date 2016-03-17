@@ -2,8 +2,9 @@
 
 var React = require('react-native');
 var {AppRegistry, Component, StyleSheet, TouchableHighlight, Text, View} = React;
-var Config = require('./../Config');
-var LocalizedText = require('./../classes/LocalizedText');
+var Config = require('../Config');
+var LocalizedText = require('../classes/LocalizedText');
+var Utils = require('../classes/Utils');
 
 class MessageView extends Component {
 
@@ -14,18 +15,13 @@ class MessageView extends Component {
     }
   }
 
-  toDate(ts) {
-    var date = new Date(ts);
-    return date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
-  }
-
   render() {
     var styles = this.props.isMine ? stylesMine : stylesNotMine;
     return (
       <View style={[stylesShared.container, styles.container]}>
       <View style={[stylesShared.infoView, styles.infoView]}>
         <Text style={[stylesShared.username, styles.username]}>{this.props.fromUserDisplayName}</Text>
-        <Text style={styles.tsText}> @{this.toDate(this.props.ts)}</Text>
+        <Text style={styles.tsText}> @{Utils.tsToHumanReadable(this.props.ts)}</Text>
       </View>
       <View style={[stylesShared.messageTextView, styles.messageTextView]}>
         <Text style={[stylesShared.messageText, styles.messageText]}>{this.props.text}</Text>

@@ -98,8 +98,8 @@ class Storage {
       '`members` varchar(1000) NOT NULL,' +
       '`display_name` varchar(1000) NOT NULL,' +
       '`created_by` varchar(64) NOT NULL,' +
-      '`last_message` varchar(500) NOT NULL,' +
-      '`last_message_ts` int(11) NOT NULL,' +
+      '`last_message` varchar(500),' +
+      '`last_message_ts` int(11),' +
       'PRIMARY KEY (`id`))', cb);
   }
 

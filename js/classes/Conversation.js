@@ -1,7 +1,7 @@
 'use strict';
 var BaseModel = require('./BaseModel');
-var UserManager = require('../classes/UserManager');
-
+var UserManager = require('./UserManager');
+var Utils = require('./Utils');
 /**
  * A Conversation object
  */
@@ -28,6 +28,14 @@ class Conversation extends BaseModel{
       });
       return displayName.join(', ');
     }
+  }
+
+  getLastTSHumanReadable() {
+    return Utils.tsToHumanReadable(this.get('last_message_ts'));
+  }
+  
+  isEqual(otherConversation) {
+    return JSON.stringify(otherConversation._data) == JSON.stringify(this._data);
   }
 }
 
