@@ -67,10 +67,13 @@ class ChatListView extends Component {
    */
   updateDataSource() {
     var that = this;
-    console.log('ChatListView:updateDataSource');
     ConversationManager.getAllConversations((conversations) => {
       console.log('ChatListView:updateDataSource:getConversations', conversations);
-      that.setState({dataSource: that.state.dataSource.cloneWithRows(conversations)});
+      var newDataSource = that.state.dataSource.cloneWithRows(conversations);
+      console.log('newDataSource', newDataSource);
+      that.setState({dataSource: newDataSource}, function () {
+        console.log('ChatListView:updateDataSource:setState done');
+      });
     });
   }
 

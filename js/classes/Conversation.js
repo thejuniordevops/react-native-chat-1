@@ -31,7 +31,8 @@ class Conversation extends BaseModel{
   }
 
   getLastTSHumanReadable() {
-    return Utils.tsToHumanReadable(this.get('last_message_ts'));
+    var lastTs = this.get('last_message_ts');
+    return lastTs && Utils.tsToHumanReadable(lastTs);
   }
   
   isEqual(otherConversation) {
